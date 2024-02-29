@@ -1,6 +1,6 @@
 /*
-Copyright (c) 2023 Yurn
-Yutori is licensed under Mulan PSL v2.
+Copyright (c) 2024 Yurn
+Yutori-Next is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
          http://license.coscl.org.cn/MulanPSL2
@@ -12,10 +12,12 @@ See the Mulan PSL v2 for more details.
 
 @file:Suppress("unused", "UNUSED_PARAMETER")
 
-package com.github.nyayurn.yutori
+package com.github.nyayurn.yutori.next
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.node.ObjectNode
+import com.fasterxml.jackson.databind.node.TextNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 
@@ -26,7 +28,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
  * @property name 频道名称
  * @property parentId 父频道 ID
  */
-data class Channel @JvmOverloads constructor(
+data class Channel(
     val id: String,
     val type: Type,
     val name: String? = null,
@@ -64,7 +66,7 @@ data class Channel @JvmOverloads constructor(
  * @property name 群组名称
  * @property avatar 群组头像
  */
-data class Guild @JvmOverloads constructor(
+data class Guild(
     val id: String,
     val name: String? = null,
     val avatar: String? = null,
@@ -77,7 +79,7 @@ data class Guild @JvmOverloads constructor(
  * @property avatar 用户在群组中的头像
  * @property joinedAt 加入时间
  */
-data class GuildMember @JvmOverloads constructor(
+data class GuildMember(
     val user: User? = null,
     val nick: String? = null,
     val avatar: String? = null,
@@ -89,7 +91,7 @@ data class GuildMember @JvmOverloads constructor(
  * @property id 角色 ID
  * @property name 角色名称
  */
-data class GuildRole @JvmOverloads constructor(
+data class GuildRole(
     val id: String,
     val name: String? = null
 )
@@ -124,7 +126,7 @@ interface Interaction {
  * @property platform 平台名称
  * @property status 登录状态
  */
-data class Login @JvmOverloads constructor(
+data class Login(
     val user: User? = null,
     @JsonProperty("self_id") val selfId: String? = null,
     val platform: String? = null,
@@ -172,7 +174,7 @@ data class Login @JvmOverloads constructor(
  * @property createdAt 消息发送的时间戳
  * @property updatedAt 消息修改的时间戳
  */
-data class Message @JvmOverloads constructor(
+data class Message(
     val id: String,
     val content: String,
     val channel: Channel? = null,
@@ -191,7 +193,7 @@ data class Message @JvmOverloads constructor(
  * @property avatar 用户头像
  * @property isBot 是否为机器人
  */
-data class User @JvmOverloads constructor(
+data class User(
     val id: String,
     val name: String? = null,
     val nick: String? = null,
@@ -204,21 +206,40 @@ data class User @JvmOverloads constructor(
  * @property op 信令类型
  * @property body 信令数据
  */
-data class Signaling @JvmOverloads constructor(val op: Int, var body: Body? = null) {
+data class Signaling(val op: Int, var body: Body? = null) {
     interface Body
 
     companion object {
-        @JvmStatic
         fun parse(json: String): Signaling {
-            val mapper = jacksonObjectMapper()
-                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            val mapper = jacksonObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             val node = mapper.readTree(json)
             return when (val op = node["op"].asInt()) {
-                EVENT -> Signaling(op, mapper.readValue<Event>(node["body"].toString()))
+                EVENT -> Signaling(op, parseEvent(mapper.readValue<Event>((node["body"] as ObjectNode).apply {
+                    set<ObjectNode>("raw", TextNode(this.toString()))
+                }.toString())))
+
                 READY -> Signaling(op, Ready(mapper.readValue(node["body"]["logins"].toString())))
                 PONG -> Signaling(op)
                 else -> throw NoSuchElementException()
             }
+        }
+
+        private fun parseEvent(event: Event) = try {
+            val type = event.type
+            when {
+                type.startsWith("guild-member-") -> GuildMemberEvent.parse(event)
+                type.startsWith("guild-role-") -> GuildRoleEvent.parse(event)
+                type.startsWith("guild-") -> GuildEvent.parse(event)
+                type == InteractionEvents.BUTTON -> InteractionButtonEvent.parse(event)
+                type == InteractionEvents.COMMAND -> InteractionCommandEvent.parse(event)
+                type.startsWith("login-") -> LoginEvent.parse(event)
+                type.startsWith("message-") -> MessageEvent.parse(event)
+                type.startsWith("reaction-") -> ReactionEvent.parse(event)
+                type.startsWith("friend-") -> UserEvent.parse(event)
+                else -> event
+            }
+        } catch (e: Throwable) {
+            throw EventParsingException(e)
         }
 
         /**
@@ -259,7 +280,7 @@ data class Ready(val logins: List<Login>) : Signaling.Body
  * @property token 鉴权令牌
  * @property sequence 序列号
  */
-data class Identify @JvmOverloads constructor(
+data class Identify(
     var token: String? = null,
     var sequence: Number? = null
 ) : Signaling.Body
@@ -297,7 +318,8 @@ open class Event @JvmOverloads constructor(
     open val message: Message? = null,
     open val operator: User? = null,
     open val role: GuildRole? = null,
-    open val user: User? = null
+    open val user: User? = null,
+    val raw: String
 ) : Signaling.Body {
     override fun toString(): String {
         return "Event(id=$id, type='$type', platform='$platform', selfId='$selfId', timestamp=$timestamp, argv=$argv, button=$button, channel=$channel, guild=$guild, login=$login, member=$member, message=$message, operator=$operator, role=$role, user=$user)"
@@ -310,69 +332,35 @@ open class Event @JvmOverloads constructor(
  * @property data 数据
  * @property next 下一页的令牌
  */
-data class PaginatedData<T> @JvmOverloads constructor(
+data class PaginatedData<T>(
     val data: List<T>,
     val next: String? = null
 )
 
 /**
- * Satori Server 配置接口
+ * Satori Server 配置
  * @property host Satori Server 主机
  * @property port Satori Server 端口
  * @property path Satori Server 路径
  * @property token Satori Server 鉴权令牌
  * @property version Satori Server 协议版本
  */
-interface SatoriProperties {
-    val host: String
-    val port: Int
-    val path: String
-    val token: String?
-    val version: String
-}
+data class SatoriProperties(
+    val host: String = "127.0.0.1",
+    val port: Int = 5500,
+    val path: String = "",
+    val token: String? = null,
+    val version: String = "v1"
+)
 
 /**
- * Satori WebHook 配置接口
+ * Satori WebHook 配置
  * @property serverHost WebHook Server 监听主机
  * @property serverPort WebHook Server 监听端口
+ * @property server Satori Server 配置
  */
-interface SatoriWebHookProperties : SatoriProperties {
-    val serverHost: String
-    val serverPort: Int
-}
-
-/**
- * 简易 Satori Server 配置实现类
- * @property host Satori Server 主机
- * @property port Satori Server 端口
- * @property path Satori Server 路径
- * @property token Satori Server 鉴权令牌
- * @property version Satori Server 协议版本
- */
-data class SimpleSatoriProperties @JvmOverloads constructor(
-    override val host: String = "127.0.0.1",
-    override val port: Int = 5500,
-    override val path: String = "",
-    override val token: String? = null,
-    override val version: String = "v1"
-) : SatoriProperties
-
-/**
- * 简易 Satori WebHook 配置实现类
- * @property serverHost WebHook Server 监听主机
- * @property serverPort WebHook Server 监听端口
- * @property host Satori Server 主机
- * @property port Satori Server 端口
- * @property path Satori Server 路径
- * @property token Satori Server 鉴权令牌
- * @property version Satori Server 协议版本
- */
-data class SimpleSatoriWebHookProperties @JvmOverloads constructor(
-    override val serverHost: String = "0.0.0.0",
-    override val serverPort: Int = 8080,
-    override val host: String = "127.0.0.1",
-    override val port: Int = 5500,
-    override val path: String = "",
-    override val token: String? = null,
-    override val version: String = "v1"
-) : SatoriWebHookProperties
+data class WebHookProperties(
+    val serverHost: String = "0.0.0.0",
+    val serverPort: Int = 8080,
+    val server: SatoriProperties
+)

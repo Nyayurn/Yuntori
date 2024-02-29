@@ -1,4 +1,4 @@
-package com.github.nyayurn.yutori.message.element
+package com.github.nyayurn.yutori.next.message.element
 
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -8,7 +8,7 @@ class TypeTest {
     fun br() {
         Assertions.assertEquals(
             "<br/>",
-            Br.toString()
+            Br().toString()
         )
     }
 
@@ -16,7 +16,7 @@ class TypeTest {
     fun message() {
         Assertions.assertEquals(
             "<message id=\"123456\" forward>message</message>",
-            Message("123456", true).apply { this += Text("message") }.toString()
+            Message("123456", true).add("message").toString()
         )
     }
 
@@ -24,7 +24,7 @@ class TypeTest {
     fun paragraph() {
         Assertions.assertEquals(
             "<p/>",
-            Paragraph.toString()
+            Paragraph().toString()
         )
     }
 }

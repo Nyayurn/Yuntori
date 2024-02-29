@@ -1,6 +1,6 @@
 /*
-Copyright (c) 2023 Yurn
-Yutori is licensed under Mulan PSL v2.
+Copyright (c) 2024 Yurn
+Yutori-Next is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
          http://license.coscl.org.cn/MulanPSL2
@@ -10,9 +10,9 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details.
  */
 
-@file:Suppress("MemberVisibilityCanBePrivate")
+@file:Suppress("MemberVisibilityCanBePrivate", "ConvertSecondaryConstructorToPrimary")
 
-package com.github.nyayurn.yutori.message.element
+package com.github.nyayurn.yutori.next.message.element
 
 /**
  * 按钮
@@ -22,20 +22,20 @@ package com.github.nyayurn.yutori.message.element
  * @property text 待输入文本
  * @property theme 按钮的样式
  */
-class Button @JvmOverloads constructor(
-    id: String? = null,
-    type: String? = null,
-    href: String? = null,
-    text: String? = null,
-    theme: String? = null
-) : NodeMessageElement("button") {
+class Button : NodeMessageElement {
     var id: String? by super.properties
     var type: String? by super.properties
     var href: String? by super.properties
     var text: String? by super.properties
     var theme: String? by super.properties
 
-    init {
+    constructor(
+        id: String? = null,
+        type: String? = null,
+        href: String? = null,
+        text: String? = null,
+        theme: String? = null
+    ) : super("button") {
         this.id = id
         this.type = type
         this.href = href

@@ -1,6 +1,6 @@
 /*
-Copyright (c) 2023 Yurn
-Yutori is licensed under Mulan PSL v2.
+Copyright (c) 2024 Yurn
+Yutori-Next is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
          http://license.coscl.org.cn/MulanPSL2
@@ -12,535 +12,338 @@ See the Mulan PSL v2 for more details.
 
 @file:Suppress("unused", "MemberVisibilityCanBePrivate")
 
-package com.github.nyayurn.yutori.message
+package com.github.nyayurn.yutori.next.message
 
-import com.github.nyayurn.yutori.message.element.*
+import com.github.nyayurn.yutori.next.message.element.*
 
 /**
- * 消息 DSL 构造器, 供 Kotlin 使用者使用
+ * 消息 DSL 构造器
  * @param dsl DSL
  * @return 消息
  */
-@JvmSynthetic
-inline fun message(dsl: MessageDSLBuilder.() -> Unit) = MessageDSLBuilder().apply(dsl).build()
+inline fun message(dsl: MessageDslBuilder.() -> Unit) = MessageDslBuilder().apply(dsl).toString()
 
 @DslMarker
 annotation class MessageDSL
 
-@MessageDSL
-class MessageDSLBuilder {
-    val list = mutableListOf<MessageElement>()
-
-    fun custom(element: Custom) = list.add(element)
-    fun custom(text: String) = list.add(Custom(text))
-    inline fun custom(dsl: () -> String) = custom(Custom(dsl()))
-
-    fun text(element: Text) = list.add(element)
-    fun text(text: String) = list.add(Text(text))
-    inline fun text(dsl: () -> String) = text(dsl())
-
-    fun at(element: At) = list.add(element)
-    fun at(
-        id: String? = null,
-        name: String? = null,
-        role: String? = null,
-        type: String? = null
-    ) = list.add(At(id, name, role, type))
-
-    inline fun at(dsl: AtBuilder.() -> Unit) = at(AtBuilder().apply(dsl).build())
-
-    fun sharp(element: Sharp) = list.add(element)
-    fun sharp(id: String, name: String? = null) = list.add(Sharp(id, name))
-    inline fun sharp(dsl: SharpBuilder.() -> Unit) = sharp(SharpBuilder().apply(dsl).build())
-
-    fun a(element: Href) = list.add(element)
-    fun a(href: String) = list.add(Href(href))
-    inline fun a(dsl: () -> String) = a(Href(dsl()))
-
-    fun img(element: Image) = list.add(element)
-    fun img(
-        src: String,
-        cache: Boolean? = null,
-        timeout: String? = null,
-        width: Number? = null,
-        height: Number? = null
-    ) = list.add(Image(src, cache, timeout, width, height))
-
-    inline fun img(dsl: ImageBuilder.() -> Unit) = img(ImageBuilder().apply(dsl).build())
-
-    fun audio(element: Audio) = list.add(element)
-    fun audio(
-        src: String,
-        cache: Boolean? = null,
-        timeout: String? = null
-    ) = list.add(Audio(src, cache, timeout))
-
-    inline fun audio(dsl: AudioBuilder.() -> Unit) = audio(AudioBuilder().apply(dsl).build())
-
-    fun video(element: Video) = list.add(element)
-    fun video(
-        src: String,
-        cache: Boolean? = null,
-        timeout: String? = null
-    ) = list.add(Video(src, cache, timeout))
-
-    inline fun video(dsl: VideoBuilder.() -> Unit) = video(VideoBuilder().apply(dsl).build())
-
-    fun file(element: File) = list.add(element)
-    fun file(
-        src: String,
-        cache: Boolean? = null,
-        timeout: String? = null
-    ) = list.add(File(src, cache, timeout))
-
-    inline fun file(dsl: FileBuilder.() -> Unit) = file(FileBuilder().apply(dsl).build())
-
-    fun b(element: Bold) = list.add(element)
-    fun b(text: String) = list.add(Bold(text))
-    inline fun b(dsl: () -> String) = b(Bold(dsl()))
-
-    fun strong(element: Strong) = list.add(element)
-    fun strong(text: String) = list.add(Strong(text))
-    inline fun strong(dsl: () -> String) = strong(Strong(dsl()))
-
-    fun i(element: Idiomatic) = list.add(element)
-    fun i(text: String) = list.add(Idiomatic(text))
-    inline fun i(dsl: () -> String) = i(Idiomatic(dsl()))
-
-    fun em(element: Em) = list.add(element)
-    fun em(text: String) = list.add(Em(text))
-    inline fun em(dsl: () -> String) = em(Em(dsl()))
-
-    fun u(element: Underline) = list.add(element)
-    fun u(text: String) = list.add(Underline(text))
-    inline fun u(dsl: () -> String) = u(Underline(dsl()))
-
-    fun ins(element: Ins) = list.add(element)
-    fun ins(text: String) = list.add(Ins(text))
-    inline fun ins(dsl: () -> String) = ins(Ins(dsl()))
-
-    fun s(element: Strikethrough) = list.add(element)
-    fun s(text: String) = list.add(Strikethrough(text))
-    inline fun s(dsl: () -> String) = s(Strikethrough(dsl()))
-
-    fun del(element: Delete) = list.add(element)
-    fun del(text: String) = list.add(Delete(text))
-    inline fun del(dsl: () -> String) = del(Delete(dsl()))
-
-    fun spl(element: Spl) = list.add(element)
-    fun spl(text: String) = list.add(Spl(text))
-    inline fun spl(dsl: () -> String) = spl(Spl(dsl()))
-
-    fun code(element: Code) = list.add(element)
-    fun code(text: String) = list.add(Code(text))
-    inline fun code(dsl: () -> String) = code(Code(dsl()))
-
-    fun sup(element: Sup) = list.add(element)
-    fun sup(text: String) = list.add(Sup(text))
-    inline fun sup(dsl: () -> String) = sup(Sup(dsl()))
-
-    fun sub(element: Sub) = list.add(element)
-    fun sub(text: String) = list.add(Sub(text))
-    inline fun sub(dsl: () -> String) = sub(Sub(dsl()))
-
-    fun br() = list.add(Br)
-    fun p() = list.add(Paragraph)
-
-    fun message(element: Message) = list.add(element)
-    fun message(
-        id: String? = null,
-        forward: Boolean? = null,
-        vararg element: MessageElement
-    ) = list.add(Message(id, forward).apply { children.addAll(element) })
-
-    inline fun message(dsl: MessageBuilder.() -> Unit) = message(MessageBuilder().apply(dsl).build())
-
-    fun quote(element: Quote) = list.add(element)
-    fun quote(vararg elements: MessageElement) = list.add(Quote().apply { children.addAll(elements) })
-    inline fun quote(dsl: MessageDSLBuilder.() -> Unit) = quote(Quote().apply {
-        children.addAll(MessageDSLBuilder().apply(dsl).list)
-    })
-
-    fun author(element: Author) = list.add(element)
-    fun author(
-        id: String? = null,
-        name: String? = null,
-        avatar: String? = null
-    ) = list.add(Author(id, name, avatar))
-
-    inline fun author(dsl: AuthorBuilder.() -> Unit) = author(AuthorBuilder().apply(dsl).build())
-
-    fun button(element: Button) = list.add(element)
-    fun button(
-        id: String? = null,
-        type: String? = null,
-        href: String? = null,
-        text: String? = null,
-        theme: String? = null
-    ) = list.add(Button(id, type, href, text, theme))
-
-    inline fun button(dsl: ButtonBuilder.() -> Unit) = button(ButtonBuilder().apply(dsl).build())
-
-    fun build() = list.joinToString("") { it.toString() }
-    override fun toString() = "MessageDSLBuilder(list=$list)"
-
-    @MessageDSL
-    class AtBuilder {
-        var id: String? = null
-        var name: String? = null
-        var role: String? = null
-        var type: String? = null
-
-        fun id(lambda: () -> String) {
-            this.id = lambda()
-        }
-
-        fun name(lambda: () -> String) {
-            this.name = lambda()
-        }
-
-        fun role(lambda: () -> String) {
-            this.role = lambda()
-        }
-
-        fun type(lambda: () -> String) {
-            this.type = lambda()
-        }
-
-        fun build() = At(id, name, role, type)
+interface PropertiedBuilder {
+    val properties: MutableMap<String, Any?>
+    operator fun get(key: String) = properties[key]
+    operator fun set(key: String, value: Any?) {
+        properties[key] = value
     }
 
-    @MessageDSL
-    class SharpBuilder {
-        var id: String = ""
-        var name: String? = null
-
-        fun id(lambda: () -> String) {
-            this.id = lambda()
-        }
-
-        fun name(lambda: () -> String) {
-            this.name = lambda()
-        }
-
-        fun build() = Sharp(id, name)
-    }
-
-    @MessageDSL
-    class ImageBuilder {
-        var src: String = ""
-        var cache: Boolean? = null
-        var timeout: String? = null
-        var width: Number? = null
-        var height: Number? = null
-
-        fun src(lambda: () -> String) {
-            this.src = lambda()
-        }
-
-        fun cache(lambda: () -> Boolean) {
-            this.cache = lambda()
-        }
-
-        fun timeout(lambda: () -> String) {
-            this.timeout = lambda()
-        }
-
-        fun width(lambda: () -> Number) {
-            this.width = lambda()
-        }
-
-        fun height(lambda: () -> Number) {
-            this.height = lambda()
-        }
-
-        fun build() = Image(src, cache, timeout, width, height)
-    }
-
-    @MessageDSL
-    class AudioBuilder {
-        var src: String = ""
-        var cache: Boolean? = null
-        var timeout: String? = null
-
-        fun src(lambda: () -> String) {
-            this.src = lambda()
-        }
-
-        fun cache(lambda: () -> Boolean) {
-            this.cache = lambda()
-        }
-
-        fun timeout(lambda: () -> String) {
-            this.timeout = lambda()
-        }
-
-        fun build() = Audio(src, cache, timeout)
-    }
-
-    @MessageDSL
-    class VideoBuilder {
-        var src: String = ""
-        var cache: Boolean? = null
-        var timeout: String? = null
-
-        fun src(lambda: () -> String) {
-            this.src = lambda()
-        }
-
-        fun cache(lambda: () -> Boolean) {
-            this.cache = lambda()
-        }
-
-        fun timeout(lambda: () -> String) {
-            this.timeout = lambda()
-        }
-
-        fun build() = Video(src, cache, timeout)
-    }
-
-    @MessageDSL
-    class FileBuilder {
-        var src: String = ""
-        var cache: Boolean? = null
-        var timeout: String? = null
-
-        fun src(lambda: () -> String) {
-            this.src = lambda()
-        }
-
-        fun cache(lambda: () -> Boolean) {
-            this.cache = lambda()
-        }
-
-        fun timeout(lambda: () -> String) {
-            this.timeout = lambda()
-        }
-
-        fun build() = File(src, cache, timeout)
-    }
-
-    @MessageDSL
-    class MessageBuilder {
-        var id: String? = null
-        var forward: Boolean? = null
-        val elements = mutableListOf<MessageElement>()
-
-        fun id(lambda: () -> String) {
-            id = lambda()
-        }
-
-        fun forward(lambda: () -> Boolean) {
-            forward = lambda()
-        }
-
-        operator fun set(index: Int, element: MessageElement) {
-            elements[index] = element
-        }
-
-        operator fun plusAssign(element: MessageElement) {
-            elements += element
-        }
-
-        fun build() = Message(id, forward).apply { children.addAll(elements) }
-    }
-
-    @MessageDSL
-    class AuthorBuilder {
-        var id: String? = null
-        var name: String? = null
-        var avatar: String? = null
-        fun id(lambda: () -> String) {
-            id = lambda()
-        }
-
-        fun name(lambda: () -> String) {
-            name = lambda()
-        }
-
-        fun avatar(lambda: () -> String) {
-            avatar = lambda()
-        }
-
-        fun build() = Author(id, name, avatar)
-    }
-
-    @MessageDSL
-    class ButtonBuilder {
-        var id: String? = null
-        var type: String? = null
-        var href: String? = null
-        var text: String? = null
-        var theme: String? = null
-        fun id(lambda: () -> String) {
-            id = lambda()
-        }
-
-        fun type(lambda: () -> String) {
-            type = lambda()
-        }
-
-        fun href(lambda: () -> String) {
-            href = lambda()
-        }
-
-        fun text(lambda: () -> String) {
-            text = lambda()
-        }
-
-        fun theme(lambda: () -> String) {
-            theme = lambda()
-        }
-
-        fun build() = Button(id, type, href, text, theme)
-    }
+    fun build(): MessageElement
 }
 
-/**
- * 消息链式构造器, 供 Java 使用者使用
- * @property list 消息列表
- */
-class MessageChainBuilder {
+@MessageDSL
+open class MessageDslBuilder {
     val list = mutableListOf<MessageElement>()
 
-    fun custom(element: Custom) = this.apply { list.add(element) }
-    fun custom(text: String) = this.apply { list.add(Custom(text)) }
+    fun text(element: Text) = element.apply { list += this }
+    inline fun text(block: () -> String) = Text(block()).apply { list += this }
 
-    fun text(element: Text) = this.apply { list.add(element) }
-    fun text(text: String) = this.apply { list.add(Text(text)) }
+    fun custom(element: Custom) = element.apply { list += this }
+    inline fun custom(block: () -> String) = Custom(block()).apply { list += this }
 
-    fun at(element: At) = this.apply { list.add(element) }
+    fun at(element: At) = element.apply { list += this }
+    inline fun at(block: AtBuilder.() -> Unit) = AtBuilder().apply(block).build().apply { list += this }
 
-    @JvmOverloads
-    fun at(
-        id: String? = null,
-        name: String? = null,
-        role: String? = null,
-        type: String? = null
-    ) = this.apply { list.add(At(id, name, role, type)) }
+    fun sharp(element: Sharp) = element.apply { list += this }
+    inline fun sharp(block: SharpBuilder.() -> Unit) = SharpBuilder().apply(block).build().apply { list += this }
 
-    fun sharp(element: Sharp) = this.apply { list.add(element) }
+    fun a(element: Href) = element.apply { list += this }
+    inline fun a(block: HrefBuilder.() -> Unit) = HrefBuilder().apply(block).build().apply { list += this }
 
-    @JvmOverloads
-    fun sharp(id: String, name: String? = null) = this.apply { list.add(Sharp(id, name)) }
+    fun img(element: Image) = element.apply { list += this }
+    inline fun img(block: ImageBuilder.() -> Unit) = ImageBuilder().apply(block).build().apply { list += this }
 
-    fun a(element: Href) = this.apply { list.add(element) }
-    fun a(href: String) = this.apply { list.add(Href(href)) }
+    fun audio(element: Audio) = element.apply { list += this }
+    inline fun audio(block: AudioBuilder.() -> Unit) = AudioBuilder().apply(block).build().apply { list += this }
 
-    fun img(element: Image) = this.apply { list.add(element) }
+    fun video(element: Video) = element.apply { list += this }
+    inline fun video(block: VideoBuilder.() -> Unit) = VideoBuilder().apply(block).build().apply { list += this }
 
-    @JvmOverloads
-    fun img(
-        src: String,
-        cache: Boolean? = null,
-        timeout: String? = null,
-        width: Number? = null,
-        height: Number? = null
-    ) = this.apply { list.add(Image(src, cache, timeout, width, height)) }
+    fun file(element: File) = element.apply { list += this }
+    inline fun file(block: FileBuilder.() -> Unit) = FileBuilder().apply(block).build().apply { list += this }
 
-    fun audio(element: Audio) = this.apply { list.add(element) }
+    fun b(element: Bold) = element.apply { list += this }
+    inline fun b(block: BoldBuilder.() -> Unit) = BoldBuilder().apply(block).build().apply { list += this }
 
-    @JvmOverloads
-    fun audio(
-        src: String,
-        cache: Boolean? = null,
-        timeout: String? = null
-    ) = this.apply { list.add(Audio(src, cache, timeout)) }
+    fun strong(element: Strong) = element.apply { list += this }
+    inline fun strong(block: BoldBuilder.() -> Unit) = BoldBuilder().apply(block).build().apply { list += this }
 
-    fun video(element: Video) = this.apply { list.add(element) }
+    fun i(element: Idiomatic) = element.apply { list += this }
+    inline fun i(block: IdiomaticBuilder.() -> Unit) = IdiomaticBuilder().apply(block).build().apply { list += this }
 
-    @JvmOverloads
-    fun video(
-        src: String,
-        cache: Boolean? = null,
-        timeout: String? = null
-    ) = this.apply { list.add(Video(src, cache, timeout)) }
+    fun em(element: Em) = element.apply { list += this }
+    inline fun em(block: IdiomaticBuilder.() -> Unit) = IdiomaticBuilder().apply(block).build().apply { list += this }
 
-    fun file(element: File) = this.apply { list.add(element) }
+    fun u(element: Underline) = element.apply { list += this }
+    inline fun u(block: UnderlineBuilder.() -> Unit) = UnderlineBuilder().apply(block).build().apply { list += this }
 
-    @JvmOverloads
-    fun file(
-        src: String,
-        cache: Boolean? = null,
-        timeout: String? = null
-    ) = this.apply { list.add(File(src, cache, timeout)) }
+    fun ins(element: Ins) = element.apply { list += this }
+    inline fun ins(block: UnderlineBuilder.() -> Unit) = UnderlineBuilder().apply(block).build().apply { list += this }
 
-    fun b(element: Bold) = this.apply { list.add(element) }
-    fun b(text: String) = this.apply { list.add(Bold(text)) }
+    fun s(element: Strikethrough) = element.apply { list += this }
+    inline fun s(block: DeleteBuilder.() -> Unit) = DeleteBuilder().apply(block).build().apply { list += this }
 
-    fun strong(element: Strong) = this.apply { list.add(element) }
-    fun strong(text: String) = this.apply { list.add(Strong(text)) }
+    fun del(element: Delete) = element.apply { list += this }
+    inline fun del(block: DeleteBuilder.() -> Unit) = DeleteBuilder().apply(block).build().apply { list += this }
 
-    fun i(element: Idiomatic) = this.apply { list.add(element) }
-    fun i(text: String) = this.apply { list.add(Idiomatic(text)) }
+    fun spl(element: Spl) = element.apply { list += this }
+    inline fun spl(block: SplBuilder.() -> Unit) = SplBuilder().apply(block).build().apply { list += this }
 
-    fun em(element: Em) = this.apply { list.add(element) }
-    fun em(text: String) = this.apply { list.add(Em(text)) }
+    fun code(element: Code) = element.apply { list += this }
+    inline fun code(block: CodeBuilder.() -> Unit) = CodeBuilder().apply(block).build().apply { list += this }
 
-    fun u(element: Underline) = this.apply { list.add(element) }
-    fun u(text: String) = this.apply { list.add(Underline(text)) }
+    fun sup(element: Sup) = element.apply { list += this }
+    inline fun sup(block: SupBuilder.() -> Unit) = SupBuilder().apply(block).build().apply { list += this }
 
-    fun ins(element: Ins) = list.add(element)
-    fun ins(text: String) = this.apply { list.add(Ins(text)) }
+    fun sub(element: Sub) = element.apply { list += this }
+    inline fun sub(block: SubBuilder.() -> Unit) = SubBuilder().apply(block).build().apply { list += this }
 
-    fun s(element: Strikethrough) = this.apply { list.add(element) }
-    fun s(text: String) = this.apply { list.add(Strikethrough(text)) }
+    fun br(element: Br) = element.apply { list += this }
+    inline fun br(block: BrBuilder.() -> Unit) = BrBuilder().apply(block).build().apply { list += this }
 
-    fun del(element: Delete) = this.apply { list.add(element) }
-    fun del(text: String) = this.apply { list.add(Delete(text)) }
+    fun p(element: Paragraph) = element.apply { list += this }
+    inline fun p(block: ParagraphBuilder.() -> Unit) = ParagraphBuilder().apply(block).build().apply { list += this }
 
-    fun spl(element: Spl) = this.apply { list.add(element) }
-    fun spl(text: String) = this.apply { list.add(Spl(text)) }
+    fun message(element: Message) = element.apply { list += this }
+    inline fun message(block: MessageBuilder.() -> Unit) = MessageBuilder().apply(block).build().apply { list += this }
 
-    fun code(element: Code) = this.apply { list.add(element) }
-    fun code(text: String) = this.apply { list.add(Code(text)) }
+    fun quote(element: Quote) = element.apply { list += this }
+    inline fun quote(block: QuoteBuilder.() -> Unit) = QuoteBuilder().apply(block).build().apply { list += this }
 
-    fun sup(element: Sup) = this.apply { list.add(element) }
-    fun sup(text: String) = this.apply { list.add(Sup(text)) }
+    fun author(element: Author) = element.apply { list += this }
+    inline fun author(block: AuthorBuilder.() -> Unit) = AuthorBuilder().apply(block).build().apply { list += this }
 
-    fun sub(element: Sub) = this.apply { list.add(element) }
-    fun sub(text: String) = this.apply { list.add(Sub(text)) }
+    fun button(element: Button) = element.apply { list += this }
+    inline fun button(block: ButtonBuilder.() -> Unit) = ButtonBuilder().apply(block).build().apply { list += this }
 
-    fun br() = this.apply { list.add(Br) }
-    fun p() = this.apply { list.add(Paragraph) }
+    override fun toString() = list.joinToString("") { it.toString() }
 
-    fun message(element: Message) = this.apply { list.add(element) }
+    @MessageDSL
+    class AtBuilder : MessageDslBuilder(), PropertiedBuilder {
+        override val properties =
+            mutableMapOf<String, Any?>("id" to null, "name" to null, "role" to null, "type" to null)
+        var id: String? by properties
+        var name: String? by properties
+        var role: String? by properties
+        var type: String? by properties
+        override fun build() = At(id, name, role, type).apply {
+            properties.putAll(this@AtBuilder.properties)
+            children.addAll(list)
+        }
+    }
 
-    @JvmOverloads
-    fun message(
-        id: String? = null,
-        forward: Boolean? = null,
-        vararg elements: MessageElement
-    ) = this.apply { list.add(Message(id, forward).apply { children.addAll(elements) }) }
+    @MessageDSL
+    class SharpBuilder : MessageDslBuilder(), PropertiedBuilder {
+        override val properties = mutableMapOf<String, Any?>("id" to "", "name" to null)
+        var id: String by properties
+        var name: String? by properties
+        override fun build() = Sharp(id, name).apply {
+            properties.putAll(this@SharpBuilder.properties)
+            children.addAll(list)
+        }
+    }
 
-    fun quote(element: Quote) = this.apply { list.add(element) }
-    fun quote(vararg elements: MessageElement) = this.apply { list.add(Quote().apply { children.addAll(elements) }) }
+    @MessageDSL
+    class HrefBuilder : MessageDslBuilder(), PropertiedBuilder {
+        override val properties = mutableMapOf<String, Any?>("href" to "")
+        var href: String by properties
+        override fun build() = Href(href).apply {
+            properties.putAll(this@HrefBuilder.properties)
+            children.addAll(list)
+        }
+    }
 
-    fun author(element: Author) = this.apply { list.add(element) }
+    @MessageDSL
+    class ImageBuilder : MessageDslBuilder(), PropertiedBuilder {
+        override val properties = mutableMapOf<String, Any?>(
+            "src" to "", "cache" to null, "timeout" to null, "width" to null, "height" to null
+        )
+        var src: String by properties
+        var cache: Boolean? by properties
+        var timeout: String? by properties
+        var width: Number? by properties
+        var height: Number? by properties
+        override fun build() = Image(src, cache, timeout, width, height).apply {
+            properties.putAll(this@ImageBuilder.properties)
+            children.addAll(list)
+        }
+    }
 
-    @JvmOverloads
-    fun author(
-        id: String? = null,
-        name: String? = null,
-        avatar: String? = null
-    ) = this.apply { list.add(Author(id, name, avatar)) }
+    @MessageDSL
+    class AudioBuilder : MessageDslBuilder(), PropertiedBuilder {
+        override val properties = mutableMapOf<String, Any?>("src" to "", "cache" to null, "timeout" to null)
+        var src: String by properties
+        var cache: Boolean? by properties
+        var timeout: String? by properties
+        override fun build() = Audio(src, cache, timeout).apply {
+            properties.putAll(this@AudioBuilder.properties)
+            children.addAll(list)
+        }
+    }
 
-    fun button(element: Button) = this.apply { list.add(element) }
+    @MessageDSL
+    class VideoBuilder : MessageDslBuilder(), PropertiedBuilder {
+        override val properties = mutableMapOf<String, Any?>("src" to "", "cache" to null, "timeout" to null)
+        var src: String by properties
+        var cache: Boolean? by properties
+        var timeout: String? by properties
+        override fun build() = Video(src, cache, timeout).apply {
+            properties.putAll(this@VideoBuilder.properties)
+            children.addAll(list)
+        }
+    }
 
-    @JvmOverloads
-    fun button(
-        id: String? = null,
-        type: String? = null,
-        href: String? = null,
-        text: String? = null,
-        theme: String? = null
-    ) = this.apply { list.add(Button(id, type, href, text, theme)) }
+    @MessageDSL
+    class FileBuilder : MessageDslBuilder(), PropertiedBuilder {
+        override val properties = mutableMapOf<String, Any?>("src" to "", "cache" to null, "timeout" to null)
+        var src: String by properties
+        var cache: Boolean? by properties
+        var timeout: String? by properties
+        override fun build() = File(src, cache, timeout).apply {
+            properties.putAll(this@FileBuilder.properties)
+            children.addAll(list)
+        }
+    }
 
-    fun build() = list.joinToString("") { it.toString() }
-    override fun toString() = "MessageChainBuilder(list=$list)"
+    @MessageDSL
+    class BoldBuilder : MessageDslBuilder(), PropertiedBuilder {
+        override val properties = mutableMapOf<String, Any?>()
+        override fun build() = Bold().apply {
+            properties.putAll(this@BoldBuilder.properties)
+            children.addAll(list)
+        }
+    }
 
-    companion object {
-        @JvmStatic
-        fun of() = MessageChainBuilder()
+    @MessageDSL
+    class IdiomaticBuilder : MessageDslBuilder(), PropertiedBuilder {
+        override val properties = mutableMapOf<String, Any?>()
+        override fun build() = Idiomatic().apply {
+            properties.putAll(this@IdiomaticBuilder.properties)
+            children.addAll(list)
+        }
+    }
+
+    @MessageDSL
+    class UnderlineBuilder : MessageDslBuilder(), PropertiedBuilder {
+        override val properties = mutableMapOf<String, Any?>()
+        override fun build() = Underline().apply {
+            properties.putAll(this@UnderlineBuilder.properties)
+            children.addAll(list)
+        }
+    }
+
+    @MessageDSL
+    class DeleteBuilder : MessageDslBuilder(), PropertiedBuilder {
+        override val properties = mutableMapOf<String, Any?>()
+        override fun build() = Strikethrough().apply {
+            properties.putAll(this@DeleteBuilder.properties)
+            children.addAll(list)
+        }
+    }
+
+    @MessageDSL
+    class SplBuilder : MessageDslBuilder(), PropertiedBuilder {
+        override val properties = mutableMapOf<String, Any?>()
+        override fun build() = Spl().apply {
+            properties.putAll(this@SplBuilder.properties)
+            children.addAll(list)
+        }
+    }
+
+    @MessageDSL
+    class CodeBuilder : MessageDslBuilder(), PropertiedBuilder {
+        override val properties = mutableMapOf<String, Any?>()
+        override fun build() = Code().apply {
+            properties.putAll(this@CodeBuilder.properties)
+            children.addAll(list)
+        }
+    }
+
+    @MessageDSL
+    class SupBuilder : MessageDslBuilder(), PropertiedBuilder {
+        override val properties = mutableMapOf<String, Any?>()
+        override fun build() = Sup().apply {
+            properties.putAll(this@SupBuilder.properties)
+            children.addAll(list)
+        }
+    }
+
+    @MessageDSL
+    class SubBuilder : MessageDslBuilder(), PropertiedBuilder {
+        override val properties = mutableMapOf<String, Any?>()
+        override fun build() = Sub().apply {
+            properties.putAll(this@SubBuilder.properties)
+            children.addAll(list)
+        }
+    }
+
+    @MessageDSL
+    class BrBuilder : MessageDslBuilder(), PropertiedBuilder {
+        override val properties = mutableMapOf<String, Any?>()
+        override fun build() = Br().apply {
+            properties.putAll(this@BrBuilder.properties)
+            children.addAll(list)
+        }
+    }
+
+    @MessageDSL
+    class ParagraphBuilder : MessageDslBuilder(), PropertiedBuilder {
+        override val properties = mutableMapOf<String, Any?>()
+        override fun build() = Paragraph().apply {
+            properties.putAll(this@ParagraphBuilder.properties)
+            children.addAll(list)
+        }
+    }
+
+    @MessageDSL
+    class MessageBuilder : MessageDslBuilder(), PropertiedBuilder {
+        override val properties = mutableMapOf<String, Any?>("id" to null, "forward" to null)
+        var id: String? by properties
+        var forward: Boolean? by properties
+        override fun build() = Message(id, forward).apply {
+            properties.putAll(this@MessageBuilder.properties)
+            children.addAll(list)
+        }
+    }
+
+    @MessageDSL
+    class QuoteBuilder : MessageDslBuilder(), PropertiedBuilder {
+        override val properties = mutableMapOf<String, Any?>()
+        override fun build() = Quote().apply {
+            properties.putAll(this@QuoteBuilder.properties)
+            children.addAll(list)
+        }
+    }
+
+    @MessageDSL
+    class AuthorBuilder : MessageDslBuilder(), PropertiedBuilder {
+        override val properties = mutableMapOf<String, Any?>("id" to null, "name" to null, "avatar" to null)
+        var id: String? by properties
+        var name: String? by properties
+        var avatar: String? by properties
+        override fun build() = Author(id, name, avatar).apply {
+            properties.putAll(this@AuthorBuilder.properties)
+            children.addAll(list)
+        }
+    }
+
+    @MessageDSL
+    class ButtonBuilder : MessageDslBuilder(), PropertiedBuilder {
+        override val properties =
+            mutableMapOf<String, Any?>("id" to null, "type" to null, "href" to null, "text" to null, "theme" to null)
+        var id: String? by properties
+        var type: String? by properties
+        var href: String? by properties
+        var text: String? by properties
+        var theme: String? by properties
+        override fun build() = Button(id, type, href, text, theme).apply {
+            properties.putAll(this@ButtonBuilder.properties)
+            children.addAll(list)
+        }
     }
 }

@@ -1,6 +1,6 @@
 /*
-Copyright (c) 2023 Yurn
-Yutori is licensed under Mulan PSL v2.
+Copyright (c) 2024 Yurn
+Yutori-Next is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
          http://license.coscl.org.cn/MulanPSL2
@@ -10,9 +10,9 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details.
  */
 
-@file:Suppress("MemberVisibilityCanBePrivate")
+@file:Suppress("MemberVisibilityCanBePrivate", "ConvertSecondaryConstructorToPrimary")
 
-package com.github.nyayurn.yutori.message.element
+package com.github.nyayurn.yutori.next.message.element
 
 /**
  * 引用
@@ -25,16 +25,16 @@ class Quote : NodeMessageElement("quote")
  * @property name 昵称
  * @property avatar 头像 URL
  */
-class Author @JvmOverloads constructor(
-    id: String? = null,
-    name: String? = null,
-    avatar: String? = null
-) : NodeMessageElement("author") {
+class Author : NodeMessageElement {
     var id: String? by super.properties
     var name: String? by super.properties
     var avatar: String? by super.properties
 
-    init {
+    constructor(
+        id: String? = null,
+        name: String? = null,
+        avatar: String? = null
+    ) : super("author") {
         this.id = id
         this.name = name
         this.avatar = avatar

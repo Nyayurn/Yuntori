@@ -1,6 +1,6 @@
 /*
-Copyright (c) 2023 Yurn
-Yutori is licensed under Mulan PSL v2.
+Copyright (c) 2024 Yurn
+Yutori-Next is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
          http://license.coscl.org.cn/MulanPSL2
@@ -10,87 +10,69 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details.
  */
 
-package com.github.nyayurn.yutori.message.element
+package com.github.nyayurn.yutori.next.message.element
 
 /**
  * 修饰元素
- * @property text 被修饰的文本
  */
-abstract class DecorationElement(
-    nodeName: String,
-    text: String
-) : NodeMessageElement(nodeName) {
-    var text: String
-        get() = (super.children[0] as Text).text
-        set(value) {
-            if (super.children.isEmpty()) {
-                super.children += Text(value)
-            } else {
-                (super.children[0] as Text).text = value
-            }
-        }
-
-    init {
-        this.text = text
-    }
-}
+abstract class DecorationElement(nodeName: String) : NodeMessageElement(nodeName)
 
 /**
  * 粗体
  */
-class Bold(text: String) : DecorationElement("b", text)
+class Bold : DecorationElement("b")
 
 /**
  * 粗体
  */
-class Strong(text: String) : DecorationElement("strong", text)
+class Strong : DecorationElement("strong")
 
 /**
  * 斜体
  */
-class Idiomatic(text: String) : DecorationElement("i", text)
+class Idiomatic : DecorationElement("i")
 
 /**
  * 斜体
  */
-class Em(text: String) : DecorationElement("em", text)
+class Em : DecorationElement("em")
 
 /**
  * 下划线
  */
-class Underline(text: String) : DecorationElement("u", text)
+class Underline : DecorationElement("u")
 
 /**
  * 下划线
  */
-class Ins(text: String) : DecorationElement("ins", text)
+class Ins : DecorationElement("ins")
 
 /**
  * 删除线
  */
-class Strikethrough(text: String) : DecorationElement("s", text)
+class Strikethrough : DecorationElement("s")
 
 /**
  * 删除线
  */
-class Delete(text: String) : DecorationElement("del", text)
+class Delete : DecorationElement("del")
 
 /**
  * 剧透
  */
-class Spl(text: String) : DecorationElement("spl", text)
+class Spl : DecorationElement("spl")
 
 /**
  * 代码
  */
-class Code(text: String) : DecorationElement("code", text)
+class Code : DecorationElement("code")
 
 /**
  * 上标
  */
-class Sup(text: String) : DecorationElement("sup", text)
+class Sup : DecorationElement("sup")
 
 /**
  * 下标
  */
-class Sub(text: String) : DecorationElement("sub", text)
+class Sub : DecorationElement("sub")

@@ -1,16 +1,11 @@
 package com.github.nyayurn.qbot
 
 import com.alibaba.fastjson2.parseObject
-import com.github.nyayurn.qbot.database.BlockListMapper.get
-import com.github.nyayurn.qbot.database.BlockListMapper.sub
-import com.github.nyayurn.qbot.database.BlockListTable.status
 import com.github.nyayurn.yutori.Actions
 import com.github.nyayurn.yutori.MessageEvent
 import com.github.nyayurn.yutori.jsonObj
-import com.github.nyayurn.yutori.message.message
 import com.reine.text2image.T2IConstant
 import com.reine.text2image.T2IUtil
-import kotlinx.coroutines.runBlocking
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.drafts.Draft_6455
 import org.java_websocket.handshake.ServerHandshake
@@ -25,9 +20,9 @@ import javax.crypto.spec.SecretKeySpec
 @Suppress("SpellCheckingInspection", "SameParameterValue")
 object AiUtil {
     private const val URL = "https://spark-api.xf-yun.com/v3.1/chat"
-    private const val APP_ID = "******"
-    private const val API_SECRET = "******"
-    private const val API_KEY = "******"
+    private val APP_ID = System.getenv("Spark_APP_ID")
+    private val API_SECRET = System.getenv("Spark_API_SECRET")
+    private val API_KEY = System.getenv("Spark_API_KEY")
 
     fun send(text: String, actions: Actions, event: MessageEvent) {
         val jsonObject = jsonObj {
@@ -100,24 +95,11 @@ object AiUtil {
             val entity = msg.parseObject<SparkResponse>()
             if (entity.header.code != 0) {
                 val code = entity.header.code
-                var content = message {
-                    at { id = event.user.id }
-                    text(" code: $code\n")
-                    text(entity.header.message)
+                actions.message.create(event.channel.id) {
+                    quote { this["id"] = event.message.id }
+                    text { "code: $code\n" }
+                    text { entity.header.message }
                 }
-                if (code == 10013 || code == 10014) {
-                    sub(event.platform, event.selfId, event.user.id)
-                    val query = get(event.platform, event.selfId, event.user.id)
-                    query.iterator().next().use { next ->
-                        val status = next[status]
-                        content += if (status != null && status != 0) {
-                            "\n恶意询问, 警告一次, 再警告${status}次后将永久进入黑名单"
-                        } else {
-                            "\n恶意询问, 多次警告无果, 已自动拉入黑名单"
-                        }
-                    }
-                }
-                runBlocking { actions.message.create(event.channel.id, content) }
                 return
             }
             entity.payload?.choices?.let {
@@ -127,14 +109,12 @@ object AiUtil {
             }
             if (entity.header.status == 2) {
                 val content = answer.toString()
-                runBlocking {
-                    actions.message.create(event.channel.id) {
-                        at { id = event.user.id }
-                        img {
-                            src = "data:image/jpeg;base64,${
-                                T2IUtil(T2IConstant()).drawImageToBase64(content).substring("base64://".length)
-                            }"
-                        }
+                actions.message.create(event.channel.id) {
+                    quote { this["id"] = event.message.id }
+                    img {
+                        src = "data:image/jpeg;base64,${
+                            T2IUtil(T2IConstant()).drawImageToBase64(content).substring("base64://".length)
+                        }"
                     }
                 }
             }

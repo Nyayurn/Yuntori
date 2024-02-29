@@ -1,6 +1,6 @@
 /*
-Copyright (c) 2023 Yurn
-Yutori is licensed under Mulan PSL v2.
+Copyright (c) 2024 Yurn
+Yutori-Next is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
          http://license.coscl.org.cn/MulanPSL2
@@ -12,21 +12,22 @@ See the Mulan PSL v2 for more details.
 
 @file:Suppress("unused", "MemberVisibilityCanBePrivate")
 
-package com.github.nyayurn.yutori
+package com.github.nyayurn.yutori.next
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.github.nyayurn.yutori.message.MessageDSLBuilder
+import com.github.nyayurn.yutori.next.message.MessageDslBuilder
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.http.*
+import kotlinx.coroutines.runBlocking
 
 /**
- * 封装所有 Action, 应通过本类对 Satori Server 发送事件
+ * 封装所有 Action, 应通过本类对 Satori Server 发送 Satori Action
  * @property channel 频道 API
  * @property guild 群组 API
  * @property login 登录信息 API
@@ -35,17 +36,19 @@ import io.ktor.http.*
  * @property user 用户 API
  * @property friend 好友 API
  * @property properties 配置信息, 供使用者获取
+ * @property name 属于哪个 Event Service
  */
 class Actions private constructor(
-    @JvmField val channel: ChannelAction,
-    @JvmField val guild: GuildAction,
-    @JvmField val login: LoginAction,
-    @JvmField val message: MessageAction,
-    @JvmField val reaction: ReactionAction,
-    @JvmField val user: UserAction,
-    @JvmField val friend: FriendAction,
-    @JvmField val admin: AdminAction,
-    val properties: SatoriProperties
+    val channel: ChannelAction,
+    val guild: GuildAction,
+    val login: LoginAction,
+    val message: MessageAction,
+    val reaction: ReactionAction,
+    val user: UserAction,
+    val friend: FriendAction,
+    val admin: AdminAction,
+    val properties: SatoriProperties,
+    val name: String
 ) {
     companion object {
         /**
@@ -54,38 +57,58 @@ class Actions private constructor(
          * @param selfId 自己 ID
          * @param properties 配置
          */
-        @JvmStatic
-        fun of(
-            platform: String, selfId: String, properties: SatoriProperties
-        ) = Actions(
-            ChannelAction.of(platform, selfId, properties),
-            GuildAction.of(platform, selfId, properties),
-            LoginAction.of(platform, selfId, properties),
-            MessageAction.of(platform, selfId, properties),
-            ReactionAction.of(platform, selfId, properties),
-            UserAction.of(platform, selfId, properties),
-            FriendAction.of(platform, selfId, properties),
-            AdminAction.of(properties),
-            properties
+        fun of(platform: String, selfId: String, properties: SatoriProperties, name: String) = Actions(
+            ChannelAction.of(platform, selfId, properties, name),
+            GuildAction.of(platform, selfId, properties, name),
+            LoginAction.of(platform, selfId, properties, name),
+            MessageAction.of(platform, selfId, properties, name),
+            ReactionAction.of(platform, selfId, properties, name),
+            UserAction.of(platform, selfId, properties, name),
+            FriendAction.of(platform, selfId, properties, name),
+            AdminAction.of(properties, name),
+            properties,
+            name
         )
+
+        /**
+         * 工厂方法
+         * @param platform 平台
+         * @param selfId 自己 ID
+         * @param dsl 配置 DSL
+         */
+        inline fun of(
+            platform: String,
+            selfId: String,
+            name: String,
+            dsl: WebSocketEventService.Builder.PropertiesBuilder.() -> Unit
+        ) = of(platform, selfId, WebSocketEventService.Builder.PropertiesBuilder().apply(dsl).build(), name)
 
         /**
          * 工厂方法
          * @param event 事件
          * @param properties 配置
          */
-        @JvmStatic
-        fun of(event: Event, properties: SatoriProperties) = of(event.platform, event.selfId, properties)
+        fun of(event: Event, properties: SatoriProperties, name: String) =
+            of(event.platform, event.selfId, properties, name)
+
+        /**
+         * 工厂方法
+         * @param event 事件
+         * @param dsl 配置 DSL
+         */
+        inline fun of(
+            event: Event, name: String, dsl: WebSocketEventService.Builder.PropertiesBuilder.() -> Unit
+        ) = of(event, WebSocketEventService.Builder.PropertiesBuilder().apply(dsl).build(), name)
     }
 }
 
-class ChannelAction private constructor(private val satoriAction: SatoriAction) {
+class ChannelAction private constructor(private val generalAction: GeneralAction) {
     /**
      * 获取群组频道
      * @param channelId 频道 ID
      */
-    suspend fun get(channelId: String): Channel {
-        return satoriAction.sendWithSerialize("get") {
+    fun get(channelId: String): Channel {
+        return generalAction.sendWithSerialize("get") {
             put("channel_id", channelId)
         }
     }
@@ -95,9 +118,8 @@ class ChannelAction private constructor(private val satoriAction: SatoriAction) 
      * @param guildId 群组 ID
      * @param next 分页令牌
      */
-    @JvmOverloads
-    suspend fun list(guildId: String, next: String? = null): List<PaginatedData<Channel>> {
-        return satoriAction.sendWithSerialize("list") {
+    fun list(guildId: String, next: String? = null): List<PaginatedData<Channel>> {
+        return generalAction.sendWithSerialize("list") {
             put("guild_id", guildId)
             put("next", next)
         }
@@ -108,8 +130,8 @@ class ChannelAction private constructor(private val satoriAction: SatoriAction) 
      * @param guildId 群组 ID
      * @param data 频道数据
      */
-    suspend fun create(guildId: String, data: Channel): Channel {
-        return satoriAction.sendWithSerialize("create") {
+    fun create(guildId: String, data: Channel): Channel {
+        return generalAction.sendWithSerialize("create") {
             put("guild_id", guildId)
             put("data", data)
         }
@@ -120,8 +142,8 @@ class ChannelAction private constructor(private val satoriAction: SatoriAction) 
      * @param channelId 频道 ID
      * @param data 频道数据
      */
-    suspend fun update(channelId: String, data: Channel) {
-        satoriAction.send("update") {
+    fun update(channelId: String, data: Channel) {
+        generalAction.send("update") {
             put("channel_id", channelId)
             put("data", data)
         }
@@ -131,29 +153,29 @@ class ChannelAction private constructor(private val satoriAction: SatoriAction) 
      * 删除群组频道
      * @param channelId 频道 ID
      */
-    suspend fun delete(channelId: String) {
-        satoriAction.send("delete") {
+    fun delete(channelId: String) {
+        generalAction.send("delete") {
             put("channel_id", channelId)
         }
     }
 
     companion object {
-        fun of(platform: String, selfId: String, properties: SatoriProperties) =
-            ChannelAction(SatoriAction(platform, selfId, properties, "channel"))
+        fun of(platform: String, selfId: String, properties: SatoriProperties, name: String) =
+            ChannelAction(GeneralAction(platform, selfId, properties, "channel", name))
     }
 }
 
 class GuildAction private constructor(
-    @JvmField val member: MemberAction,
-    @JvmField val role: RoleAction,
-    private val satoriAction: SatoriAction
+    val member: MemberAction,
+    val role: RoleAction,
+    private val generalAction: GeneralAction
 ) {
     /**
      * 获取群组
      * @param guildId 群组 ID
      */
-    suspend fun get(guildId: String): Guild {
-        return satoriAction.sendWithSerialize("get") {
+    fun get(guildId: String): Guild {
+        return generalAction.sendWithSerialize("get") {
             put("guild_id", guildId)
         }
     }
@@ -162,9 +184,8 @@ class GuildAction private constructor(
      * 获取群组列表
      * @param next 分页令牌
      */
-    @JvmOverloads
-    suspend fun list(next: String? = null): List<PaginatedData<Guild>> {
-        return satoriAction.sendWithSerialize("list") {
+    fun list(next: String? = null): List<PaginatedData<Guild>> {
+        return generalAction.sendWithSerialize("list") {
             put("next", next)
         }
     }
@@ -175,8 +196,8 @@ class GuildAction private constructor(
      * @param approve 是否通过请求
      * @param comment 备注信息
      */
-    suspend fun approve(messageId: String, approve: Boolean, comment: String) {
-        satoriAction.send("approve") {
+    fun approve(messageId: String, approve: Boolean, comment: String) {
+        generalAction.send("approve") {
             put("message_id", messageId)
             put("approve", approve)
             put("comment", comment)
@@ -184,24 +205,24 @@ class GuildAction private constructor(
     }
 
     companion object {
-        fun of(platform: String, selfId: String, properties: SatoriProperties) = GuildAction(
-            MemberAction.of(platform, selfId, properties),
-            RoleAction.of(platform, selfId, properties),
-            SatoriAction(platform, selfId, properties, "guild")
+        fun of(platform: String, selfId: String, properties: SatoriProperties, name: String) = GuildAction(
+            MemberAction.of(platform, selfId, properties, name),
+            RoleAction.of(platform, selfId, properties, name),
+            GeneralAction(platform, selfId, properties, "guild", name)
         )
     }
 
     class MemberAction private constructor(
-        @JvmField val role: RoleAction,
-        private val satoriAction: SatoriAction
+        val role: RoleAction,
+        private val generalAction: GeneralAction
     ) {
         /**
          * 获取群组成员
          * @param guildId 群组 ID
          * @param userId 用户 ID
          */
-        suspend fun get(guildId: String, userId: String): GuildMember {
-            return satoriAction.sendWithSerialize("get") {
+        fun get(guildId: String, userId: String): GuildMember {
+            return generalAction.sendWithSerialize("get") {
                 put("guild_id", guildId)
                 put("user_id", userId)
             }
@@ -212,9 +233,8 @@ class GuildAction private constructor(
          * @param guildId 群组 ID
          * @param next 分页令牌
          */
-        @JvmOverloads
-        suspend fun list(guildId: String, next: String? = null): List<PaginatedData<GuildMember>> {
-            return satoriAction.sendWithSerialize("list") {
+        fun list(guildId: String, next: String? = null): List<PaginatedData<GuildMember>> {
+            return generalAction.sendWithSerialize("list") {
                 put("guild_id", guildId)
                 put("next", next)
             }
@@ -226,9 +246,8 @@ class GuildAction private constructor(
          * @param userId 用户 ID
          * @param permanent 是否永久踢出 (无法再次加入群组)
          */
-        @JvmOverloads
-        suspend fun kick(guildId: String, userId: String, permanent: Boolean? = null) {
-            satoriAction.send("kick") {
+        fun kick(guildId: String, userId: String, permanent: Boolean? = null) {
+            generalAction.send("kick") {
                 put("guild_id", guildId)
                 put("user_id", userId)
                 put("permanent", permanent)
@@ -241,9 +260,8 @@ class GuildAction private constructor(
          * @param approve 是否通过请求
          * @param comment 备注信息
          */
-        @JvmOverloads
-        suspend fun approve(messageId: String, approve: Boolean, comment: String? = null) {
-            satoriAction.send("approve") {
+        fun approve(messageId: String, approve: Boolean, comment: String? = null) {
+            generalAction.send("approve") {
                 put("message_id", messageId)
                 put("approve", approve)
                 put("comment", comment)
@@ -251,21 +269,21 @@ class GuildAction private constructor(
         }
 
         companion object {
-            fun of(platform: String, selfId: String, properties: SatoriProperties) = MemberAction(
-                RoleAction.of(platform, selfId, properties),
-                SatoriAction(platform, selfId, properties, "guild.member")
+            fun of(platform: String, selfId: String, properties: SatoriProperties, name: String) = MemberAction(
+                RoleAction.of(platform, selfId, properties, name),
+                GeneralAction(platform, selfId, properties, "guild.member", name)
             )
         }
 
-        class RoleAction private constructor(private val satoriAction: SatoriAction) {
+        class RoleAction private constructor(private val generalAction: GeneralAction) {
             /**
              * 设置群组成员角色
              * @param guildId 群组 ID
              * @param userId 用户 ID
              * @param roleId 角色 ID
              */
-            suspend fun set(guildId: String, userId: String, roleId: String) {
-                satoriAction.send("set") {
+            fun set(guildId: String, userId: String, roleId: String) {
+                generalAction.send("set") {
                     put("guild_id", guildId)
                     put("user_id", userId)
                     put("role_id", roleId)
@@ -278,8 +296,8 @@ class GuildAction private constructor(
              * @param userId 用户 ID
              * @param roleId 角色 ID
              */
-            suspend fun unset(guildId: String, userId: String, roleId: String) {
-                satoriAction.send("unset") {
+            fun unset(guildId: String, userId: String, roleId: String) {
+                generalAction.send("unset") {
                     put("guild_id", guildId)
                     put("user_id", userId)
                     put("role_id", roleId)
@@ -287,21 +305,20 @@ class GuildAction private constructor(
             }
 
             companion object {
-                fun of(platform: String, selfId: String, properties: SatoriProperties) =
-                    RoleAction(SatoriAction(platform, selfId, properties, "guild.member.role"))
+                fun of(platform: String, selfId: String, properties: SatoriProperties, name: String) =
+                    RoleAction(GeneralAction(platform, selfId, properties, "guild.member.role", name))
             }
         }
     }
 
-    class RoleAction private constructor(private val satoriAction: SatoriAction) {
+    class RoleAction private constructor(private val generalAction: GeneralAction) {
         /**
          * 获取群组角色列表
          * @param guildId 群组 ID
          * @param next 分页令牌
          */
-        @JvmOverloads
-        suspend fun list(guildId: String, next: String? = null): List<PaginatedData<GuildRole>> {
-            return satoriAction.sendWithSerialize("list") {
+        fun list(guildId: String, next: String? = null): List<PaginatedData<GuildRole>> {
+            return generalAction.sendWithSerialize("list") {
                 put("guild_id", guildId)
                 put("next", next)
             }
@@ -312,8 +329,8 @@ class GuildAction private constructor(
          * @param guildId 群组 ID
          * @param role 角色数据
          */
-        suspend fun create(guildId: String, role: GuildRole): GuildRole {
-            return satoriAction.sendWithSerialize("create") {
+        fun create(guildId: String, role: GuildRole): GuildRole {
+            return generalAction.sendWithSerialize("create") {
                 put("guild_id", guildId)
                 put("role", role)
             }
@@ -325,8 +342,8 @@ class GuildAction private constructor(
          * @param roleId 角色 ID
          * @param role 角色数据
          */
-        suspend fun update(guildId: String, roleId: String, role: GuildRole) {
-            satoriAction.send("update") {
+        fun update(guildId: String, roleId: String, role: GuildRole) {
+            generalAction.send("update") {
                 put("guild_id", guildId)
                 put("role_id", roleId)
                 put("role", role)
@@ -338,40 +355,40 @@ class GuildAction private constructor(
          * @param guildId 群组 ID
          * @param roleId 角色 ID
          */
-        suspend fun delete(guildId: String, roleId: String) {
-            satoriAction.send("delete") {
+        fun delete(guildId: String, roleId: String) {
+            generalAction.send("delete") {
                 put("guild_id", guildId)
                 put("role_id", roleId)
             }
         }
 
         companion object {
-            fun of(platform: String, selfId: String, properties: SatoriProperties) =
-                RoleAction(SatoriAction(platform, selfId, properties, "guild.role"))
+            fun of(platform: String, selfId: String, properties: SatoriProperties, name: String) =
+                RoleAction(GeneralAction(platform, selfId, properties, "guild.role", name))
         }
     }
 }
 
-class LoginAction private constructor(private val satoriAction: SatoriAction) {
+class LoginAction private constructor(private val generalAction: GeneralAction) {
     /**
      * 获取登录信息
      */
-    suspend fun get(): Login = satoriAction.sendWithSerialize("get")
+    fun get(): Login = generalAction.sendWithSerialize("get")
 
     companion object {
-        fun of(platform: String, selfId: String, properties: SatoriProperties) =
-            LoginAction(SatoriAction(platform, selfId, properties, "login"))
+        fun of(platform: String, selfId: String, properties: SatoriProperties, name: String) =
+            LoginAction(GeneralAction(platform, selfId, properties, "login", name))
     }
 }
 
-class MessageAction private constructor(private val satoriAction: SatoriAction) {
+class MessageAction private constructor(private val generalAction: GeneralAction) {
     /**
      * 发送消息
      * @param channelId 频道 ID
      * @param content 消息内容
      */
-    suspend fun create(channelId: String, content: String): List<Message> {
-        return satoriAction.sendWithSerialize("create") {
+    fun create(channelId: String, content: String): List<Message> {
+        return generalAction.sendWithSerialize("create") {
             put("channel_id", channelId)
             put("content", content.replace("\n", "\\n").replace("\"", "\\\""))
         }
@@ -382,17 +399,16 @@ class MessageAction private constructor(private val satoriAction: SatoriAction) 
      * @param channelId 频道 ID
      * @param dsl 消息内容 DSL
      */
-    @JvmSynthetic
-    suspend inline fun create(channelId: String, dsl: MessageDSLBuilder.() -> Unit) =
-        create(channelId, MessageDSLBuilder().apply(dsl).build())
+    inline fun create(channelId: String, dsl: MessageDslBuilder.() -> Unit) =
+        create(channelId, MessageDslBuilder().apply(dsl).toString())
 
     /**
      * 获取消息
      * @param channelId 频道 ID
      * @param messageId 消息 ID
      */
-    suspend fun get(channelId: String, messageId: String): Message {
-        return satoriAction.sendWithSerialize("get") {
+    fun get(channelId: String, messageId: String): Message {
+        return generalAction.sendWithSerialize("get") {
             put("channel_id", channelId)
             put("message_id", messageId)
         }
@@ -403,8 +419,8 @@ class MessageAction private constructor(private val satoriAction: SatoriAction) 
      * @param channelId 频道 ID
      * @param messageId 消息 ID
      */
-    suspend fun delete(channelId: String, messageId: String) {
-        satoriAction.send("delete") {
+    fun delete(channelId: String, messageId: String) {
+        generalAction.send("delete") {
             put("channel_id", channelId)
             put("message_id", messageId)
         }
@@ -416,8 +432,8 @@ class MessageAction private constructor(private val satoriAction: SatoriAction) 
      * @param messageId 消息 ID
      * @param content 消息内容
      */
-    suspend fun update(channelId: String, messageId: String, content: String) {
-        satoriAction.send("update") {
+    fun update(channelId: String, messageId: String, content: String) {
+        generalAction.send("update") {
             put("channel_id", channelId)
             put("message_id", messageId)
             put("content", content.replace("\n", "\\n").replace("\"", "\\\""))
@@ -430,38 +446,36 @@ class MessageAction private constructor(private val satoriAction: SatoriAction) 
      * @param messageId 消息 ID
      * @param dsl 消息内容 DSL
      */
-    @JvmSynthetic
-    suspend inline fun update(channelId: String, messageId: String, dsl: MessageDSLBuilder.() -> Unit) =
-        update(channelId, messageId, MessageDSLBuilder().apply(dsl).build())
+    inline fun update(channelId: String, messageId: String, dsl: MessageDslBuilder.() -> Unit) =
+        update(channelId, messageId, MessageDslBuilder().apply(dsl).toString())
 
     /**
      * 获取消息列表
      * @param channelId 频道 ID
      * @param next 分页令牌
      */
-    @JvmOverloads
-    suspend fun list(channelId: String, next: String? = null): List<PaginatedData<Message>> {
-        return satoriAction.sendWithSerialize("list") {
+    fun list(channelId: String, next: String? = null): List<PaginatedData<Message>> {
+        return generalAction.sendWithSerialize("list") {
             put("channel_id", channelId)
             put("next", next)
         }
     }
 
     companion object {
-        fun of(platform: String, selfId: String, properties: SatoriProperties) =
-            MessageAction(SatoriAction(platform, selfId, properties, "message"))
+        fun of(platform: String, selfId: String, properties: SatoriProperties, name: String) =
+            MessageAction(GeneralAction(platform, selfId, properties, "message", name))
     }
 }
 
-class ReactionAction private constructor(private val satoriAction: SatoriAction) {
+class ReactionAction private constructor(private val generalAction: GeneralAction) {
     /**
      * 添加表态
      * @param channelId 频道 ID
      * @param messageId 消息 ID
      * @param emoji 表态名称
      */
-    suspend fun create(channelId: String, messageId: String, emoji: String) {
-        satoriAction.send("create") {
+    fun create(channelId: String, messageId: String, emoji: String) {
+        generalAction.send("create") {
             put("channel_id", channelId)
             put("message_id", messageId)
             put("emoji", emoji)
@@ -475,9 +489,8 @@ class ReactionAction private constructor(private val satoriAction: SatoriAction)
      * @param emoji 表态名称
      * @param userId 用户 ID
      */
-    @JvmOverloads
-    suspend fun delete(channelId: String, messageId: String, emoji: String, userId: String? = null) {
-        satoriAction.send("delete") {
+    fun delete(channelId: String, messageId: String, emoji: String, userId: String? = null) {
+        generalAction.send("delete") {
             put("channel_id", channelId)
             put("message_id", messageId)
             put("emoji", emoji)
@@ -491,9 +504,8 @@ class ReactionAction private constructor(private val satoriAction: SatoriAction)
      * @param messageId 消息 ID
      * @param emoji 表态名称
      */
-    @JvmOverloads
-    suspend fun clear(channelId: String, messageId: String, emoji: String? = null) {
-        satoriAction.send("clear") {
+    fun clear(channelId: String, messageId: String, emoji: String? = null) {
+        generalAction.send("clear") {
             put("channel_id", channelId)
             put("message_id", messageId)
             put("emoji", emoji)
@@ -507,14 +519,8 @@ class ReactionAction private constructor(private val satoriAction: SatoriAction)
      * @param emoji 表态名称
      * @param next 分页令牌
      */
-    @JvmOverloads
-    suspend fun list(
-        channelId: String,
-        messageId: String,
-        emoji: String,
-        next: String? = null
-    ): List<PaginatedData<User>> {
-        return satoriAction.sendWithSerialize("list") {
+    fun list(channelId: String, messageId: String, emoji: String, next: String? = null): List<PaginatedData<User>> {
+        return generalAction.sendWithSerialize("list") {
             put("channel_id", channelId)
             put("message_id", messageId)
             put("emoji", emoji)
@@ -523,61 +529,56 @@ class ReactionAction private constructor(private val satoriAction: SatoriAction)
     }
 
     companion object {
-        fun of(platform: String, selfId: String, properties: SatoriProperties) =
-            ReactionAction(SatoriAction(platform, selfId, properties, "reaction"))
+        fun of(platform: String, selfId: String, properties: SatoriProperties, name: String) =
+            ReactionAction(GeneralAction(platform, selfId, properties, "reaction", name))
     }
 }
 
-class UserAction private constructor(
-    @JvmField val channel: ChannelAction,
-    private val satoriAction: SatoriAction
-) {
+class UserAction private constructor(val channel: ChannelAction, private val generalAction: GeneralAction) {
     /**
      * 获取用户信息
      * @param userId 用户 ID
      */
-    suspend fun get(userId: String): User {
-        return satoriAction.sendWithSerialize("get") {
+    fun get(userId: String): User {
+        return generalAction.sendWithSerialize("get") {
             put("user_id", userId)
         }
     }
 
     companion object {
-        fun of(platform: String, selfId: String, properties: SatoriProperties) = UserAction(
-            ChannelAction.of(platform, selfId, properties),
-            SatoriAction(platform, selfId, properties, "user")
+        fun of(platform: String, selfId: String, properties: SatoriProperties, name: String) = UserAction(
+            ChannelAction.of(platform, selfId, properties, name),
+            GeneralAction(platform, selfId, properties, "user", name)
         )
     }
 
-    class ChannelAction private constructor(private val satoriAction: SatoriAction) {
+    class ChannelAction private constructor(private val generalAction: GeneralAction) {
         /**
          * 创建私聊频道
          * @param userId 用户 ID
          * @param guildId 群组 ID
          */
-        @JvmOverloads
-        suspend fun create(userId: String, guildId: String? = null): Channel {
-            return satoriAction.sendWithSerialize("create") {
+        fun create(userId: String, guildId: String? = null): Channel {
+            return generalAction.sendWithSerialize("create") {
                 put("user_id", userId)
                 put("guild_id", guildId)
             }
         }
 
         companion object {
-            fun of(platform: String, selfId: String, properties: SatoriProperties) =
-                ChannelAction(SatoriAction(platform, selfId, properties, "user.channel"))
+            fun of(platform: String, selfId: String, properties: SatoriProperties, name: String) =
+                ChannelAction(GeneralAction(platform, selfId, properties, "user.channel", name))
         }
     }
 }
 
-class FriendAction private constructor(private val satoriAction: SatoriAction) {
+class FriendAction private constructor(private val generalAction: GeneralAction) {
     /**
      * 获取好友列表
      * @param next 分页令牌
      */
-    @JvmOverloads
-    suspend fun list(next: String? = null): List<PaginatedData<User>> {
-        return satoriAction.sendWithSerialize("list") {
+    fun list(next: String? = null): List<PaginatedData<User>> {
+        return generalAction.sendWithSerialize("list") {
             put("next", next)
         }
     }
@@ -588,9 +589,8 @@ class FriendAction private constructor(private val satoriAction: SatoriAction) {
      * @param approve 是否通过请求
      * @param comment 备注信息
      */
-    @JvmOverloads
-    suspend fun approve(messageId: String, approve: Boolean, comment: String? = null) {
-        satoriAction.send("approve") {
+    fun approve(messageId: String, approve: Boolean, comment: String? = null) {
+        generalAction.send("approve") {
             put("message_id", messageId)
             put("approve", approve)
             put("comment", comment)
@@ -598,42 +598,42 @@ class FriendAction private constructor(private val satoriAction: SatoriAction) {
     }
 
     companion object {
-        fun of(platform: String, selfId: String, properties: SatoriProperties) =
-            FriendAction(SatoriAction(platform, selfId, properties, "friend"))
+        fun of(platform: String, selfId: String, properties: SatoriProperties, name: String) =
+            FriendAction(GeneralAction(platform, selfId, properties, "friend", name))
     }
 }
 
 
-class AdminAction private constructor(
-    @JvmField val login: LoginAction,
-    @JvmField val webhook: WebhookAction
-) {
+class AdminAction private constructor(val login: LoginAction, val webhook: WebhookAction) {
     companion object {
-        fun of(properties: SatoriProperties) = AdminAction(LoginAction.of(properties), WebhookAction.of(properties))
+        fun of(properties: SatoriProperties, name: String) = AdminAction(
+            LoginAction.of(properties, name), WebhookAction.of(properties, name)
+        )
     }
 
 
-    class LoginAction private constructor(private val satoriAction: SatoriAction) {
+    class LoginAction private constructor(private val generalAction: GeneralAction) {
         /**
          * 获取登录信息列表
          */
-        suspend fun list(): List<Login> = satoriAction.sendWithSerialize("list")
+        fun list(): List<Login> = generalAction.sendWithSerialize("list")
 
         companion object {
-            fun of(properties: SatoriProperties) = LoginAction(SatoriAction(null, null, properties, "login"))
+            fun of(properties: SatoriProperties, name: String) = LoginAction(
+                GeneralAction(null, null, properties, "login", name)
+            )
         }
     }
 
 
-    class WebhookAction private constructor(private val satoriAction: SatoriAction) {
+    class WebhookAction private constructor(private val generalAction: GeneralAction) {
         /**
          * 创建 WebHook
          * @param url WebHook 地址
          * @param token 鉴权令牌
          */
-        @JvmOverloads
-        suspend fun create(url: String, token: String? = null) {
-            satoriAction.send("list") {
+        fun create(url: String, token: String? = null) {
+            generalAction.send("list") {
                 put("url", url)
                 put("token", token)
             }
@@ -643,14 +643,16 @@ class AdminAction private constructor(
          * 移除 WebHook
          * @param url WebHook 地址
          */
-        suspend fun delete(url: String) {
-            satoriAction.send("approve") {
+        fun delete(url: String) {
+            generalAction.send("approve") {
                 put("url", url)
             }
         }
 
         companion object {
-            fun of(properties: SatoriProperties) = WebhookAction(SatoriAction(null, null, properties, "webhook"))
+            fun of(properties: SatoriProperties, name: String) = WebhookAction(
+                GeneralAction(null, null, properties, "webhook", name)
+            )
         }
     }
 }
@@ -661,19 +663,22 @@ class AdminAction private constructor(
  * @property selfId 自身的 ID
  * @property properties 配置
  * @property resource 资源路径
+ * @property name 隶属哪个 Event Service
+ * @property mapper JSON 反序列化
  * @property logger 日志接口
  */
-class SatoriAction(
+class GeneralAction(
     private val platform: String?,
     private val selfId: String?,
     private val properties: SatoriProperties,
-    private val resource: String
+    private val resource: String,
+    private val name: String
 ) {
     private val mapper: ObjectMapper =
         jacksonObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-    private val logger = GlobalLoggerFactory.getLogger {}
+    private val logger = GlobalLoggerFactory.getLogger(this::class.java)
 
-    suspend fun send(method: String, body: String? = null): String {
+    fun send(method: String, body: String? = null): String = runBlocking {
         HttpClient(CIO).use { client ->
             val response = client.post {
                 url {
@@ -689,32 +694,27 @@ class SatoriAction(
                 }
                 body?.let { setBody(it) }
                 logger.debug(
-                    """
+                    name, """
                     Satori Action: url: ${this.url},
                         headers: ${this.headers.build()},
                         body: ${this.body}
                     """.trimIndent()
                 )
             }
-            logger.debug("Satori Action Response: $response")
-            return response.body()
+            logger.debug(name, "Satori Action Response: $response")
+            response.body()
         }
     }
 
-    suspend fun <T> sendWithSerialize(method: String, body: String? = null): T {
-        try {
-            return mapper.readValue(send(method, body), object : TypeReference<T>() {})
-        } catch (e: Exception) {
-            logger.error(e.localizedMessage)
-            throw e
-        }
+    fun <T> sendWithSerialize(method: String, body: String? = null): T = try {
+        mapper.readValue(send(method, body), object : TypeReference<T>() {})
+    } catch (e: Exception) {
+        logger.warn(name, e.localizedMessage)
+        throw e
     }
 
-    @JvmSynthetic
-    suspend inline fun send(method: String, dsl: JsonObjectDSLBuilder.() -> Unit) = send(method, jsonObj(dsl))
+    inline fun send(method: String, dsl: JsonObjectDSLBuilder.() -> Unit) = send(method, jsonObj(dsl))
 
-
-    @JvmSynthetic
-    suspend inline fun <T> sendWithSerialize(method: String, dsl: JsonObjectDSLBuilder.() -> Unit): T =
+    inline fun <T> sendWithSerialize(method: String, dsl: JsonObjectDSLBuilder.() -> Unit): T =
         sendWithSerialize(method, jsonObj(dsl))
 }

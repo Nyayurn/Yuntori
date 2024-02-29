@@ -1,4 +1,4 @@
-package com.github.nyayurn.yutori.message.element
+package com.github.nyayurn.yutori.next.message.element
 
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -20,7 +20,7 @@ class MetaTest {
     fun quote() {
         Assertions.assertEquals(
             "<quote>引用</quote>",
-            Quote().apply { this += Text("引用") }.toString()
+            Quote().add("引用").toString()
         )
     }
 }

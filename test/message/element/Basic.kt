@@ -1,9 +1,17 @@
-package com.github.nyayurn.yutori.message.element
+package com.github.nyayurn.yutori.next.message.element
 
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 class BasicTest {
+    @Test
+    fun custom() {
+        Assertions.assertEquals(
+            "<img src=\"https://www.baidu.com/favicon.ico\"/>",
+            Custom("<img src=\"https://www.baidu.com/favicon.ico\"/>").toString()
+        )
+    }
+
     @Test
     fun text() {
         Assertions.assertEquals(
