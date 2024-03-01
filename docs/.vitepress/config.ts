@@ -1,8 +1,7 @@
 export default {
-    title: 'Yutori-Next-Docs',
-    description: 'Yutori-Next\'s Documents',
+    title: "Yutori-Next-Docs",
+    description: "Yutori-Next's Documents",
     themeConfig: {
-        siteTitle: 'Yutori Next',
         sidebar: [
             { text: "介绍", link: "/README.md" },
             { text: "指南", link: "/Guild.md" },
