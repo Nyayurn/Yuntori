@@ -18,14 +18,14 @@ fun interface Listener<T : Event> {
     operator fun invoke(actions: Actions, event: T)
 }
 
-class ListenersContainer private constructor(val name: String) {
+class ListenersContainer private constructor() {
     val any = mutableListOf<Listener<Event>>()
-    val guild = GuildContainer(name)
-    val interaction = InteractionContainer(name)
-    val login = LoginContainer(name)
-    val message = MessageContainer(name)
-    val reaction = ReactionContainer(name)
-    val friend = FriendContainer(name)
+    val guild = GuildContainer()
+    val interaction = InteractionContainer()
+    val login = LoginContainer()
+    val message = MessageContainer()
+    val reaction = ReactionContainer()
+    val friend = FriendContainer()
     private val logger = GlobalLoggerFactory.getLogger(this::class.java)
 
     fun any(listener: Listener<Event>) {
@@ -33,36 +33,35 @@ class ListenersContainer private constructor(val name: String) {
     }
 
     companion object {
-        fun of(name: String) = ListenersContainer(name)
-        inline fun of(name: String, apply: ListenersContainer.() -> Unit = {}) = of(name).apply(apply)
+        fun of(apply: ListenersContainer.() -> Unit = {}) = ListenersContainer().apply(apply)
     }
 
-    fun runEvent(event: Event, properties: SatoriProperties) {
+    fun runEvent(event: Event, properties: SatoriProperties, name: String) {
         try {
             val actions = Actions.of(event, properties, name)
             for (listener in this.any) listener(actions, event)
             when (event) {
-                is GuildEvent -> guild.runEvent(actions, event)
-                is GuildMemberEvent -> guild.member.runEvent(actions, event)
-                is GuildRoleEvent -> guild.role.runEvent(actions, event)
-                is InteractionButtonEvent, is InteractionCommandEvent -> interaction.runEvent(actions, event)
-                is LoginEvent -> login.runEvent(actions, event)
-                is MessageEvent -> message.runEvent(actions, event)
-                is ReactionEvent -> reaction.runEvent(actions, event)
-                is UserEvent -> friend.runEvent(actions, event)
+                is GuildEvent -> guild.runEvent(actions, event, name)
+                is GuildMemberEvent -> guild.member.runEvent(actions, event, name)
+                is GuildRoleEvent -> guild.role.runEvent(actions, event, name)
+                is InteractionButtonEvent, is InteractionCommandEvent -> interaction.runEvent(actions, event, name)
+                is LoginEvent -> login.runEvent(actions, event, name)
+                is MessageEvent -> message.runEvent(actions, event, name)
+                is ReactionEvent -> reaction.runEvent(actions, event, name)
+                is UserEvent -> friend.runEvent(actions, event, name)
             }
         } catch (e: EventParsingException) {
             logger.error(name, "$e, event: $event")
         }
     }
 
-    class GuildContainer(val name: String) {
+    class GuildContainer {
         val added = mutableListOf<Listener<GuildEvent>>()
         val updated = mutableListOf<Listener<GuildEvent>>()
         val removed = mutableListOf<Listener<GuildEvent>>()
         val request = mutableListOf<Listener<GuildEvent>>()
-        val member = MemberContainer(name)
-        val role = RoleContainer(name)
+        val member = MemberContainer()
+        val role = RoleContainer()
         private val logger = GlobalLoggerFactory.getLogger(this::class.java)
 
         fun added(listener: Listener<GuildEvent>) {
@@ -81,7 +80,7 @@ class ListenersContainer private constructor(val name: String) {
             request += listener
         }
 
-        fun runEvent(actions: Actions, event: GuildEvent) = when (event.type) {
+        fun runEvent(actions: Actions, event: GuildEvent, name: String) = when (event.type) {
             GuildEvents.ADDED -> added.forEach { it(actions, event) }
             GuildEvents.UPDATED -> updated.forEach { it(actions, event) }
             GuildEvents.REMOVED -> removed.forEach { it(actions, event) }
@@ -89,7 +88,7 @@ class ListenersContainer private constructor(val name: String) {
             else -> logger.warn(name, "Unsupported event: $event")
         }
 
-        class MemberContainer(val name: String) {
+        class MemberContainer {
             val added = mutableListOf<Listener<GuildMemberEvent>>()
             val updated = mutableListOf<Listener<GuildMemberEvent>>()
             val removed = mutableListOf<Listener<GuildMemberEvent>>()
@@ -112,7 +111,7 @@ class ListenersContainer private constructor(val name: String) {
                 request += listener
             }
 
-            fun runEvent(actions: Actions, event: GuildMemberEvent) = when (event.type) {
+            fun runEvent(actions: Actions, event: GuildMemberEvent, name: String) = when (event.type) {
                 GuildMemberEvents.ADDED -> added.forEach { it(actions, event) }
                 GuildMemberEvents.UPDATED -> updated.forEach { it(actions, event) }
                 GuildMemberEvents.REMOVED -> removed.forEach { it(actions, event) }
@@ -121,7 +120,7 @@ class ListenersContainer private constructor(val name: String) {
             }
         }
 
-        class RoleContainer(val name: String) {
+        class RoleContainer {
             val created = mutableListOf<Listener<GuildRoleEvent>>()
             val updated = mutableListOf<Listener<GuildRoleEvent>>()
             val deleted = mutableListOf<Listener<GuildRoleEvent>>()
@@ -139,7 +138,7 @@ class ListenersContainer private constructor(val name: String) {
                 deleted += listener
             }
 
-            fun runEvent(actions: Actions, event: GuildRoleEvent) = when (event.type) {
+            fun runEvent(actions: Actions, event: GuildRoleEvent, name: String) = when (event.type) {
                 GuildRoleEvents.CREATED -> created.forEach { it(actions, event) }
                 GuildRoleEvents.UPDATED -> updated.forEach { it(actions, event) }
                 GuildRoleEvents.DELETED -> deleted.forEach { it(actions, event) }
@@ -148,7 +147,7 @@ class ListenersContainer private constructor(val name: String) {
         }
     }
 
-    class InteractionContainer(val name: String) {
+    class InteractionContainer {
         val button = mutableListOf<Listener<InteractionButtonEvent>>()
         val command = mutableListOf<Listener<InteractionCommandEvent>>()
         private val logger = GlobalLoggerFactory.getLogger(this::class.java)
@@ -161,14 +160,14 @@ class ListenersContainer private constructor(val name: String) {
             command += listener
         }
 
-        fun runEvent(actions: Actions, event: Event) = when (event) {
+        fun runEvent(actions: Actions, event: Event, name: String) = when (event) {
             is InteractionButtonEvent -> button.forEach { it(actions, event) }
             is InteractionCommandEvent -> command.forEach { it(actions, event) }
             else -> logger.warn(name, "Unsupported event: $event")
         }
     }
 
-    class LoginContainer(val name: String) {
+    class LoginContainer {
         val added = mutableListOf<Listener<LoginEvent>>()
         val removed = mutableListOf<Listener<LoginEvent>>()
         val updated = mutableListOf<Listener<LoginEvent>>()
@@ -186,7 +185,7 @@ class ListenersContainer private constructor(val name: String) {
             updated += listener
         }
 
-        fun runEvent(actions: Actions, event: LoginEvent) = when (event.type) {
+        fun runEvent(actions: Actions, event: LoginEvent, name: String) = when (event.type) {
             LoginEvents.ADDED -> added.forEach { it(actions, event) }
             LoginEvents.REMOVED -> removed.forEach { it(actions, event) }
             LoginEvents.UPDATED -> updated.forEach { it(actions, event) }
@@ -194,7 +193,7 @@ class ListenersContainer private constructor(val name: String) {
         }
     }
 
-    class MessageContainer(val name: String) {
+    class MessageContainer {
         val created = mutableListOf<Listener<MessageEvent>>()
         val updated = mutableListOf<Listener<MessageEvent>>()
         val deleted = mutableListOf<Listener<MessageEvent>>()
@@ -212,7 +211,7 @@ class ListenersContainer private constructor(val name: String) {
             deleted += listener
         }
 
-        fun runEvent(actions: Actions, event: MessageEvent) = when (event.type) {
+        fun runEvent(actions: Actions, event: MessageEvent, name: String) = when (event.type) {
             MessageEvents.CREATED -> created.forEach { it(actions, event) }
             MessageEvents.UPDATED -> updated.forEach { it(actions, event) }
             MessageEvents.DELETED -> deleted.forEach { it(actions, event) }
@@ -220,7 +219,7 @@ class ListenersContainer private constructor(val name: String) {
         }
     }
 
-    class ReactionContainer(val name: String) {
+    class ReactionContainer {
         val added = mutableListOf<Listener<ReactionEvent>>()
         val removed = mutableListOf<Listener<ReactionEvent>>()
         private val logger = GlobalLoggerFactory.getLogger(this::class.java)
@@ -233,14 +232,14 @@ class ListenersContainer private constructor(val name: String) {
             removed += listener
         }
 
-        fun runEvent(actions: Actions, event: ReactionEvent) = when (event.type) {
+        fun runEvent(actions: Actions, event: ReactionEvent, name: String) = when (event.type) {
             ReactionEvents.ADDED -> added.forEach { it(actions, event) }
             ReactionEvents.REMOVED -> removed.forEach { it(actions, event) }
             else -> logger.warn(name, "Unsupported event: $event")
         }
     }
 
-    class FriendContainer(val name: String) {
+    class FriendContainer {
         val request = mutableListOf<Listener<UserEvent>>()
         private val logger = GlobalLoggerFactory.getLogger(this::class.java)
 
@@ -248,7 +247,7 @@ class ListenersContainer private constructor(val name: String) {
             request += listener
         }
 
-        fun runEvent(actions: Actions, event: UserEvent) = when (event.type) {
+        fun runEvent(actions: Actions, event: UserEvent, name: String) = when (event.type) {
             UserEvents.FRIEND_REQUEST -> request.forEach { it(actions, event) }
             else -> logger.warn(name, "Unsupported event: $event")
         }

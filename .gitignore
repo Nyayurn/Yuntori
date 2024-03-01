@@ -34,3 +34,5 @@ build/
 
 gradle.properties
 /.gradle/
+/node_modules/
+/docs/.vitepress/cache/

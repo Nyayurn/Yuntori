@@ -150,7 +150,7 @@ class WebSocketEventService(
                 }
                 logger.debug(name, "事件详细信息: $body")
                 sequence = event.id
-                container.runEvent(event, properties)
+                container.runEvent(event, properties, name)
             }
 
             Signaling.PONG -> logger.debug(name, "收到 PONG")
@@ -177,12 +177,12 @@ class WebSocketEventService(
             Builder(name).apply(dsl).build().connect()
     }
 
-    class Builder(private val name: String) {
-        var container: ListenersContainer = ListenersContainer.of(name)
+    class Builder(var name: String) {
+        var container: ListenersContainer = ListenersContainer.of()
         var properties: SatoriProperties = SatoriProperties()
 
         fun listeners(lambda: ListenersContainer.() -> Unit) {
-            container = ListenersContainer.of(name, lambda)
+            container = ListenersContainer.of(lambda)
         }
 
         fun properties(lambda: PropertiesBuilder.() -> Unit) {
@@ -249,7 +249,7 @@ class WebHookEventService(
                                     )
                                 }
                                 logger.debug(name, "事件详细信息: $body")
-                                container.runEvent(event, properties.server)
+                                container.runEvent(event, properties.server, name)
                             }
                             call.response.status(HttpStatusCode.OK)
                         } catch (e: Exception) {
@@ -290,12 +290,12 @@ class WebHookEventService(
         fun connect(name: String = "Satori", dsl: Builder.() -> Unit) = Builder(name).apply(dsl).build().connect()
     }
 
-    class Builder(private val name: String) {
-        var container: ListenersContainer = ListenersContainer.of(name)
+    class Builder(var name: String) {
+        var container: ListenersContainer = ListenersContainer.of()
         var properties: WebHookProperties = WebHookProperties(server = SatoriProperties())
 
         fun listeners(lambda: ListenersContainer.() -> Unit) {
-            container = ListenersContainer.of(name, lambda)
+            container = ListenersContainer.of(lambda)
         }
 
         fun properties(lambda: PropertiesBuilder.() -> Unit) {
