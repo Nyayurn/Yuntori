@@ -16,7 +16,7 @@ import com.github.nyayurn.yutori.next.Level.*
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-enum class Level(val num: Int) { ERROR(5), WARN(4), INFO(3), DEBUG(2), TRACE(1) }
+enum class Level(val num: Int) { ERROR(3), WARN(2), INFO(1), DEBUG(0) }
 
 interface Logger {
     fun log(level: Level, service: String, msg: String)
@@ -24,8 +24,6 @@ interface Logger {
     fun warn(name: String, msg: String) = log(WARN, name, msg)
     fun info(name: String, msg: String) = log(INFO, name, msg)
     fun debug(name: String, msg: String) = log(DEBUG, name, msg)
-    @Suppress("unused")
-    fun trace(name: String, msg: String) = log(TRACE, name, msg)
 }
 
 fun interface LoggerFactory {
@@ -44,7 +42,6 @@ class DefaultLogger(private val clazz: Class<*>, private val useLevel: Level) : 
             WARN -> "38;5;11"
             INFO -> "0"
             DEBUG -> "38;5;8"
-            TRACE -> "38;5;7"
         } deco "[${level.name}]: $msg"
         println("[$service]$time$className$levelAndMsg")
     }
@@ -57,5 +54,8 @@ class DefaultLoggerFactory(private val level: Level = INFO) : LoggerFactory {
 object GlobalLoggerFactory : LoggerFactory {
     @Suppress("MemberVisibilityCanBePrivate")
     var factory: LoggerFactory = DefaultLoggerFactory()
+        set(value) {
+            field = if (value == GlobalLoggerFactory) DefaultLoggerFactory() else value
+        }
     override fun getLogger(clazz: Class<*>) = factory.getLogger(clazz)
 }

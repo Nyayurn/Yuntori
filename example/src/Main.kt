@@ -1,6 +1,6 @@
 package com.github.nyayurn.qbot
 
-import com.github.nyayurn.yutori.*
+import com.github.nyayurn.yutori.next.*
 import java.security.cert.X509Certificate
 import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager

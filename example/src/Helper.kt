@@ -1,9 +1,9 @@
 package com.github.nyayurn.qbot
 
 import com.alibaba.fastjson2.parseObject
-import com.github.nyayurn.yutori.Actions
-import com.github.nyayurn.yutori.MessageEvent
-import com.github.nyayurn.yutori.jsonObj
+import com.github.nyayurn.yutori.next.Actions
+import com.github.nyayurn.yutori.next.MessageEvent
+import com.github.nyayurn.yutori.next.jsonObj
 import com.reine.text2image.T2IConstant
 import com.reine.text2image.T2IUtil
 import org.java_websocket.client.WebSocketClient

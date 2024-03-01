@@ -1,8 +1,8 @@
 package com.github.nyayurn.qbot
 
-import com.github.nyayurn.yutori.Actions
-import com.github.nyayurn.yutori.MessageEvent
-import com.github.nyayurn.yutori.MessageUtil.decode
+import com.github.nyayurn.yutori.next.Actions
+import com.github.nyayurn.yutori.next.MessageEvent
+import com.github.nyayurn.yutori.next.MessageUtil.decode
 
 interface Command {
     fun test(actions: Actions, event: MessageEvent, msg: String): Boolean

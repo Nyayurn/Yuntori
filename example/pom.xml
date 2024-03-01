@@ -28,7 +28,7 @@
         <dependency>
             <groupId>com.github.Nyayurn</groupId>
             <artifactId>Yutori-Next</artifactId>
-            <version>unspecified</version>
+            <version>f8fd3fb7cf</version>
         </dependency>
         <dependency>
             <groupId>com.github.reine-ishyanami</groupId>
