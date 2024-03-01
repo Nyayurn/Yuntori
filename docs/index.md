@@ -7,16 +7,16 @@ hero:
   actions:
     - theme: brand
       text: 指南
-      link: /Guild
+      link: Guild
     - theme: alt
       text: 进阶
-      link: /Advanced
+      link: Advanced
     - theme: alt
       text: 动作
-      link: /Action
+      link: Action
     - theme: alt
       text: 事件
-      link: /Event
+      link: Event
     - theme: alt
       text: 示例
       link: https://github.com/Nyayurn/Yutori-Next/tree/master/example
