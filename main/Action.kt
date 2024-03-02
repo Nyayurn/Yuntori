@@ -14,10 +14,10 @@ See the Mulan PSL v2 for more details.
 
 package com.github.nyayurn.yutori.next
 
-import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.nyayurn.yutori.next.message.MessageDslBuilder
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -668,15 +668,15 @@ class AdminAction private constructor(val login: LoginAction, val webhook: Webho
  * @property logger 日志接口
  */
 class GeneralAction(
-    private val platform: String?,
-    private val selfId: String?,
-    private val properties: SatoriProperties,
-    private val resource: String,
-    private val name: String
+    val platform: String?,
+    val selfId: String?,
+    val properties: SatoriProperties,
+    val resource: String,
+    val name: String
 ) {
-    private val mapper: ObjectMapper =
+    val mapper: ObjectMapper =
         jacksonObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-    private val logger = GlobalLoggerFactory.getLogger(this::class.java)
+    val logger = GlobalLoggerFactory.getLogger(this::class.java)
 
     fun send(method: String, body: String? = null): String = runBlocking {
         HttpClient(CIO).use { client ->
@@ -706,8 +706,8 @@ class GeneralAction(
         }
     }
 
-    fun <T> sendWithSerialize(method: String, body: String? = null): T = try {
-        mapper.readValue(send(method, body), object : TypeReference<T>() {})
+    inline fun <reified T> sendWithSerialize(method: String, body: String? = null): T = try {
+        mapper.readValue<T>(send(method, body))
     } catch (e: Exception) {
         logger.warn(name, e.localizedMessage)
         throw e
@@ -715,6 +715,6 @@ class GeneralAction(
 
     inline fun send(method: String, dsl: JsonObjectDSLBuilder.() -> Unit) = send(method, jsonObj(dsl))
 
-    inline fun <T> sendWithSerialize(method: String, dsl: JsonObjectDSLBuilder.() -> Unit): T =
+    inline fun <reified T> sendWithSerialize(method: String, dsl: JsonObjectDSLBuilder.() -> Unit): T =
         sendWithSerialize(method, jsonObj(dsl))
 }

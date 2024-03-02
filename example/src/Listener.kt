@@ -101,3 +101,14 @@ object AtListener : Listener<MessageEvent> {
         }
     }
 }
+
+object YzListener : Listener<MessageEvent> {
+    override fun invoke(actions: Actions, event: MessageEvent) {
+        if (event.user.id == "3583477473") {
+            actions.message.delete(event.channel.id, actions.message.create(event.channel.id) {
+                quote { this["id"] = event.message.id }
+                text { "#撤回" }
+            }[0].id)
+        }
+    }
+}

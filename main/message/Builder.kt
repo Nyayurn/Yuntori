@@ -161,7 +161,12 @@ open class MessageDslBuilder {
     @MessageDSL
     class ImageBuilder : MessageDslBuilder(), PropertiedBuilder {
         override val properties = mutableMapOf<String, Any?>(
-            "src" to "", "cache" to null, "timeout" to null, "width" to null, "height" to null
+            "src" to "",
+            "title" to null,
+            "cache" to null,
+            "timeout" to null,
+            "width" to null,
+            "height" to null
         )
         var src: String by properties
         var title: String? by properties
@@ -177,7 +182,14 @@ open class MessageDslBuilder {
 
     @MessageDSL
     class AudioBuilder : MessageDslBuilder(), PropertiedBuilder {
-        override val properties = mutableMapOf<String, Any?>("src" to "", "cache" to null, "timeout" to null)
+        override val properties = mutableMapOf<String, Any?>(
+            "src" to "",
+            "title" to null,
+            "cache" to null,
+            "timeout" to null,
+            "duration" to null,
+            "poster" to null
+        )
         var src: String by properties
         var title: String? by properties
         var cache: Boolean? by properties
@@ -192,7 +204,16 @@ open class MessageDslBuilder {
 
     @MessageDSL
     class VideoBuilder : MessageDslBuilder(), PropertiedBuilder {
-        override val properties = mutableMapOf<String, Any?>("src" to "", "cache" to null, "timeout" to null)
+        override val properties = mutableMapOf<String, Any?>(
+            "src" to "",
+            "title" to null,
+            "cache" to null,
+            "timeout" to null,
+            "width" to null,
+            "height" to null,
+            "duration" to null,
+            "poster" to null
+        )
         var src: String by properties
         var title: String? by properties
         var cache: Boolean? by properties
@@ -209,7 +230,13 @@ open class MessageDslBuilder {
 
     @MessageDSL
     class FileBuilder : MessageDslBuilder(), PropertiedBuilder {
-        override val properties = mutableMapOf<String, Any?>("src" to "", "cache" to null, "timeout" to null)
+        override val properties = mutableMapOf<String, Any?>(
+            "src" to "",
+            "title" to null,
+            "cache" to null,
+            "timeout" to null,
+            "poster" to null
+        )
         var src: String by properties
         var title: String? by properties
         var cache: Boolean? by properties

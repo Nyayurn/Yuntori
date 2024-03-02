@@ -13,6 +13,7 @@ fun main() {
             message.created += CommandListener
             message.created += OpenGraphListener
             message.created += AtListener
+            message.created += YzListener
         }
         properties {
             when (server) {
