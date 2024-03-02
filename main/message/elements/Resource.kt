@@ -22,16 +22,19 @@ package com.github.nyayurn.yutori.next.message.elements
  */
 abstract class ResourceElement : NodeMessageElement {
     var src: String by super.properties
+    var title: String? by super.properties
     var cache: Boolean? by super.properties
     var timeout: String? by super.properties
 
     constructor(
         name: String,
         src: String,
+        title: String?,
         cache: Boolean?,
         timeout: String?
     ) : super(name) {
         this.src = src
+        this.title = title
         this.cache = cache
         this.timeout = timeout
     }
@@ -48,11 +51,12 @@ class Image : ResourceElement {
 
     constructor(
         src: String,
+        title: String? = null,
         cache: Boolean? = null,
         timeout: String? = null,
         width: Number? = null,
         height: Number? = null
-    ) : super("img", src, cache, timeout) {
+    ) : super("img", src, title, cache, timeout) {
         this.width = width
         this.height = height
     }
@@ -61,26 +65,61 @@ class Image : ResourceElement {
 /**
  * 语音
  */
-class Audio(
-    src: String,
-    cache: Boolean? = null,
-    timeout: String? = null
-) : ResourceElement("audio", src, cache, timeout)
+class Audio : ResourceElement {
+    var duration: Number? by super.properties
+    var poster: String? by super.properties
+
+    constructor(
+        src: String,
+        title: String? = null,
+        cache: Boolean? = null,
+        timeout: String? = null,
+        duration: Number? = null,
+        poster: String? = null
+    ): super("audio", src, title, cache, timeout) {
+        this.duration = duration
+        this.poster = poster
+    }
+}
 
 /**
  * 视频
  */
-class Video(
-    src: String,
-    cache: Boolean? = null,
-    timeout: String? = null
-) : ResourceElement("video", src, cache, timeout)
+class Video : ResourceElement {
+    var width: Number? by super.properties
+    var height: Number? by super.properties
+    var duration: Number? by super.properties
+    var poster: String? by super.properties
+    constructor(
+        src: String,
+        title: String? = null,
+        cache: Boolean? = null,
+        timeout: String? = null,
+        width: Number? = null,
+        height: Number? = null,
+        duration: Number? = null,
+        poster: String? = null
+    ): super("video", src, title, cache, timeout) {
+        this.width = width
+        this.height = height
+        this.duration = duration
+        this.poster = poster
+    }
+}
 
 /**
  * 文件
  */
-class File(
-    src: String,
-    cache: Boolean? = null,
-    timeout: String? = null
-) : ResourceElement("file", src, cache, timeout)
+class File : ResourceElement {
+    var poster: String? by super.properties
+
+    constructor(
+        src: String,
+        title: String? = null,
+        cache: Boolean? = null,
+        timeout: String? = null,
+        poster: String? = null
+    ): super("file", src, title, cache, timeout) {
+        this.poster = poster
+    }
+}

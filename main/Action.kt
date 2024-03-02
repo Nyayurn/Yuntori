@@ -397,10 +397,10 @@ class MessageAction private constructor(private val generalAction: GeneralAction
     /**
      * 使用 DSL 发送消息
      * @param channelId 频道 ID
-     * @param dsl 消息内容 DSL
+     * @param block 消息内容 DSL
      */
-    inline fun create(channelId: String, dsl: MessageDslBuilder.() -> Unit) =
-        create(channelId, MessageDslBuilder().apply(dsl).toString())
+    inline fun create(channelId: String, block: MessageDslBuilder.() -> Unit) =
+        create(channelId, MessageDslBuilder().apply(block).toString())
 
     /**
      * 获取消息
@@ -444,10 +444,10 @@ class MessageAction private constructor(private val generalAction: GeneralAction
      * 使用 DSL 编辑消息
      * @param channelId 频道 ID
      * @param messageId 消息 ID
-     * @param dsl 消息内容 DSL
+     * @param block 消息内容 DSL
      */
-    inline fun update(channelId: String, messageId: String, dsl: MessageDslBuilder.() -> Unit) =
-        update(channelId, messageId, MessageDslBuilder().apply(dsl).toString())
+    inline fun update(channelId: String, messageId: String, block: MessageDslBuilder.() -> Unit) =
+        update(channelId, messageId, MessageDslBuilder().apply(block).toString())
 
     /**
      * 获取消息列表

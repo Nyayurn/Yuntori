@@ -1,7 +1,7 @@
 package com.github.nyayurn.qbot
 
 import com.github.nyayurn.yutori.next.*
-import com.github.nyayurn.yutori.next.message.element.At
+import com.github.nyayurn.yutori.next.message.elements.At
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*

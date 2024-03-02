@@ -164,11 +164,12 @@ open class MessageDslBuilder {
             "src" to "", "cache" to null, "timeout" to null, "width" to null, "height" to null
         )
         var src: String by properties
+        var title: String? by properties
         var cache: Boolean? by properties
         var timeout: String? by properties
         var width: Number? by properties
         var height: Number? by properties
-        override fun build() = Image(src, cache, timeout, width, height).apply {
+        override fun build() = Image(src, title, cache, timeout, width, height).apply {
             properties.putAll(this@ImageBuilder.properties)
             children.addAll(list)
         }
@@ -178,9 +179,12 @@ open class MessageDslBuilder {
     class AudioBuilder : MessageDslBuilder(), PropertiedBuilder {
         override val properties = mutableMapOf<String, Any?>("src" to "", "cache" to null, "timeout" to null)
         var src: String by properties
+        var title: String? by properties
         var cache: Boolean? by properties
         var timeout: String? by properties
-        override fun build() = Audio(src, cache, timeout).apply {
+        var duration: Number? by properties
+        var poster: String? by properties
+        override fun build() = Audio(src, title, cache, timeout, duration, poster).apply {
             properties.putAll(this@AudioBuilder.properties)
             children.addAll(list)
         }
@@ -190,9 +194,14 @@ open class MessageDslBuilder {
     class VideoBuilder : MessageDslBuilder(), PropertiedBuilder {
         override val properties = mutableMapOf<String, Any?>("src" to "", "cache" to null, "timeout" to null)
         var src: String by properties
+        var title: String? by properties
         var cache: Boolean? by properties
         var timeout: String? by properties
-        override fun build() = Video(src, cache, timeout).apply {
+        var width: Number? by properties
+        var height: Number? by properties
+        var duration: Number? by properties
+        var poster: String? by properties
+        override fun build() = Video(src, title, cache, timeout, width, height, duration, poster).apply {
             properties.putAll(this@VideoBuilder.properties)
             children.addAll(list)
         }
@@ -202,9 +211,11 @@ open class MessageDslBuilder {
     class FileBuilder : MessageDslBuilder(), PropertiedBuilder {
         override val properties = mutableMapOf<String, Any?>("src" to "", "cache" to null, "timeout" to null)
         var src: String by properties
+        var title: String? by properties
         var cache: Boolean? by properties
         var timeout: String? by properties
-        override fun build() = File(src, cache, timeout).apply {
+        var poster: String? by properties
+        override fun build() = File(src, title, cache, timeout, poster).apply {
             properties.putAll(this@FileBuilder.properties)
             children.addAll(list)
         }

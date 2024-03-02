@@ -134,19 +134,19 @@ abstract class NodeMessageElement(val nodeName: String) : MessageElement {
 }
 
 /**
- * 自定义
- * @property text 内容
- */
-class Custom(var text: String) : MessageElement {
-    override fun toString() = text
-}
-
-/**
  * 纯文本
- * @property text 内容
+ * @property text 文本
  */
 class Text(var text: String) : MessageElement {
     override fun toString() = text.encode()
+}
+
+/**
+ * 自定义
+ * @property content 内容
+ */
+class Custom(var content: String) : MessageElement {
+    override fun toString() = content
 }
 
 /**

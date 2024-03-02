@@ -1,16 +1,12 @@
-# 快速开始
+# 介绍
 
-## 基础信息
-
+- Yutori-Next 是一个 [Satori 协议](https://satori.chat) 的 [Kotlin](https://kotlinlang.org) 多平台机器人开发框架
+- Yutori-Next 的名称来源于作者 Yurn 与 Satori 名字的结合
 - 本项目不依赖也不建议配合 Spring 进行开发
 
-## 项目创建
-
-1. 创建项目
-2. [引入依赖](#依赖引入)
-3. [基础使用](#基础使用)
-
 ## 依赖引入
+
+- 获取版本请查看 [Jitpack](https://jitpack.io/#Nyayurn/Yutori-Next)
 
 ### Maven
 
@@ -24,8 +20,8 @@
 ```xml
 <dependency>
     <groupId>com.github.Nyayurn</groupId>
-    <artifactId>Yutori</artifactId>
-    <version>final</version>
+    <artifactId>Yutori-Next</artifactId>
+    <version>${version}</version>
 </dependency>
 ```
 
@@ -36,7 +32,7 @@ maven { url = URI("https://jitpack.io") }
 ```
 
 ```kotlin
-implementation("com.github.Nyayurn:Yutori:final")
+implementation("com.github.Nyayurn:Yutori-Next:$version")
 ```
 
 ### Gradle Groovy DSL
@@ -47,12 +43,10 @@ maven { url 'https://jitpack.io' }
 ```
 
 ```groovy
-implementation 'com.github.Nyayurn:Yutori:final'
+implementation 'com.github.Nyayurn:Yutori:${version}'
 ```
 
 ## 基础使用
-
-### Kotlin
 
 ```kotlin
 fun main() {
@@ -73,7 +67,3 @@ fun main() {
     }
 }
 ```
-
-## 其他
-
-Yutori: 作者名称 Yurn 与 Satori 协议名称结合而来

@@ -2,7 +2,7 @@
 
 ## 注册监听器
 
-- 通过 ListenersContainer 类的方法注册对应[事件](Event.md)的监听器
+- 通过 ListenersContainer 类的方法注册对应事件的监听器
 ```kotlin
 val container = ListenersContainer.of {
     message.created += TestListener
@@ -12,10 +12,7 @@ val container = ListenersContainer.of {
 }
 ```
 
-## Actions
-
-- 封装了所有 [Action](Action.md)
-- 负责与 Satori Server 交互
+- 可以通过 `container.any` 方法注册监听任意事件的监听器
 
 ## 多帐号
 
@@ -34,18 +31,18 @@ val koishiClient = WebSocketEventService.connect("Koishi") {
 ## DSL 构建消息
 
 ```kotlin
-fun main() {
-    message {
+fun onMessageCreated(actions: Actions, event: MessageEvent) {
+    println(message {
         at { id = event.user.id }
         text { "红烧肉 红烧排骨 可乐鸡翅 糖醋排骨 水煮鱼 红烧鱼" }
-    }
+    })
 }
 ```
 
 actions.message.create 等方法提供更方便的 DSL 使用
 
 ```kotlin
-fun listen(actions: Actions, event: MessageEvent) {
+fun onMessageCreated(actions: Actions, event: MessageEvent) {
     actions.message.create(event.channel.id) {
         at { id = event.user.id }
         text { " 菜单:\n" }
@@ -88,13 +85,9 @@ fun listen(actions: Actions, event: MessageEvent) {
 
 - 请自行使用 HTTP 库发送 HTTP 请求
 
-## 扩展消息元素
-
-- 请自行继承 NodeMessageElement 类
-
 ## 消息元素扩展属性
 
-- 请自行塞进 NodeMessageElement.properties
+除 `Text` 与 `Custom` 消息元素外, 所有标准元素均继承自 NodeMessageElement, 可通过操作该类的 properties 属性来添加/修改扩展属性
 
 ### DSL
 
@@ -106,6 +99,10 @@ fun main() {
     }
 }
 ```
+
+## 扩展消息元素
+
+请自行创建 NodeMessageElement 子类
 
 ## 事件扩展属性
 
