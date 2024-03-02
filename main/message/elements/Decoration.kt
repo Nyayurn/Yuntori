@@ -10,7 +10,7 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details.
  */
 
-package com.github.nyayurn.yutori.next.message.element
+package com.github.nyayurn.yutori.next.message.elements
 
 /**
  * 修饰元素

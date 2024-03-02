@@ -286,47 +286,6 @@ data class Identify(
 ) : Signaling.Body
 
 /**
- * 事件, 参考 https://satori.chat/zh-CN/protocol/events.html#event
- * @property id 事件 ID
- * @property type 事件类型
- * @property platform 接收者的平台名称
- * @property selfId 接收者的平台账号
- * @property timestamp 事件的时间戳
- * @property argv 交互指令
- * @property button 交互按钮
- * @property channel 事件所属的频道
- * @property guild 事件所属的群组
- * @property login 事件的登录信息
- * @property member 事件的目标成员
- * @property message 事件的消息
- * @property operator 事件的操作者
- * @property role 事件的目标角色
- * @property user 事件的目标用户
- */
-open class Event @JvmOverloads constructor(
-    val id: Number,
-    val type: String,
-    val platform: String,
-    @JsonProperty("self_id") val selfId: String,
-    val timestamp: Number,
-    open val argv: Interaction.Argv? = null,
-    open val button: Interaction.Button? = null,
-    open val channel: Channel? = null,
-    open val guild: Guild? = null,
-    open val login: Login? = null,
-    open val member: GuildMember? = null,
-    open val message: Message? = null,
-    open val operator: User? = null,
-    open val role: GuildRole? = null,
-    open val user: User? = null,
-    val raw: String
-) : Signaling.Body {
-    override fun toString(): String {
-        return "Event(id=$id, type='$type', platform='$platform', selfId='$selfId', timestamp=$timestamp, argv=$argv, button=$button, channel=$channel, guild=$guild, login=$login, member=$member, message=$message, operator=$operator, role=$role, user=$user)"
-    }
-}
-
-/**
  * 分页数据, 参考 https://satori.chat/zh-CN/protocol/api.html#%E5%88%86%E9%A1%B5
  * @param T 数据类型
  * @property data 数据

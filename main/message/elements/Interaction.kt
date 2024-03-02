@@ -12,31 +12,34 @@ See the Mulan PSL v2 for more details.
 
 @file:Suppress("MemberVisibilityCanBePrivate", "ConvertSecondaryConstructorToPrimary")
 
-package com.github.nyayurn.yutori.next.message.element
+package com.github.nyayurn.yutori.next.message.elements
 
 /**
- * 引用
+ * 按钮
+ * @property id 按钮的 ID
+ * @property type 按钮的类型
+ * @property href 按钮的链接
+ * @property text 待输入文本
+ * @property theme 按钮的样式
  */
-class Quote : NodeMessageElement("quote")
-
-/**
- * 作者
- * @property id 用户 ID
- * @property name 昵称
- * @property avatar 头像 URL
- */
-class Author : NodeMessageElement {
+class Button : NodeMessageElement {
     var id: String? by super.properties
-    var name: String? by super.properties
-    var avatar: String? by super.properties
+    var type: String? by super.properties
+    var href: String? by super.properties
+    var text: String? by super.properties
+    var theme: String? by super.properties
 
     constructor(
         id: String? = null,
-        name: String? = null,
-        avatar: String? = null
-    ) : super("author") {
+        type: String? = null,
+        href: String? = null,
+        text: String? = null,
+        theme: String? = null
+    ) : super("button") {
         this.id = id
-        this.name = name
-        this.avatar = avatar
+        this.type = type
+        this.href = href
+        this.text = text
+        this.theme = theme
     }
 }

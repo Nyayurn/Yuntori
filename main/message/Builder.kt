@@ -14,7 +14,7 @@ See the Mulan PSL v2 for more details.
 
 package com.github.nyayurn.yutori.next.message
 
-import com.github.nyayurn.yutori.next.message.element.*
+import com.github.nyayurn.yutori.next.message.elements.*
 
 /**
  * 消息 DSL 构造器

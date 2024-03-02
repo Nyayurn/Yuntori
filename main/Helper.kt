@@ -14,8 +14,8 @@ See the Mulan PSL v2 for more details.
 
 package com.github.nyayurn.yutori.next
 
-import com.github.nyayurn.yutori.next.message.element.*
-import com.github.nyayurn.yutori.next.message.element.Message
+import com.github.nyayurn.yutori.next.message.elements.*
+import com.github.nyayurn.yutori.next.message.elements.Message
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.Node

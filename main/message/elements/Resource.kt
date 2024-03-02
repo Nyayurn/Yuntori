@@ -12,7 +12,7 @@ See the Mulan PSL v2 for more details.
 
 @file:Suppress("MemberVisibilityCanBePrivate", "ConvertSecondaryConstructorToPrimary")
 
-package com.github.nyayurn.yutori.next.message.element
+package com.github.nyayurn.yutori.next.message.elements
 
 /**
  * 资源元素
