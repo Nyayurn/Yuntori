@@ -4,27 +4,26 @@
 
 ### 添加表态
 
-> actions.reaction.create(channelId: String, messageId: String, emoji: String)
+> reaction.create
 
 ### 删除表态
 
-> actions.reaction.delete(channelId: String, messageId: String, emoji: String, userId: String? = null)
+> reaction.delete
 
 ### 清除表态
 
-> actions.reaction.clear(channelId: String, messageId: String, emoji: String? = null)
+> reaction.clear
 
 ### 获取表态列表
 
-> actions.reaction.list(channelId: String, messageId: String, emoji: String, next: String? = null): 
-> List\<PaginatedData\<User\>\>
+> reaction.list
 
 ## 事件 (Event)
 
 ### 表态被添加
 
-> container.reaction.added(listener: Listener\<ReactionEvent\>)
+> reaction.added
 
 ### 表态被移除
 
-> container.reaction.removed(listener: Listener\<ReactionEvent\>)
+> reaction.removed

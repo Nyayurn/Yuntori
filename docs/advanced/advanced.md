@@ -69,8 +69,7 @@ fun main() {
 
 ```kotlin
 fun listen(actions: Actions, event: MessageEvent) {
-    val msgChain = MessageUtil.parseElementChain(event.message.content)
-    msgChain.forEach(::println)
+    event.message.content.forEach(::println)
 }
 ```
 

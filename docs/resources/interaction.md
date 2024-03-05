@@ -4,8 +4,8 @@
 
 ### 类型为 action 的按钮被点击
 
-> container.interaction.button(listener: Listener\<InteractionButtonEvent\>)
+> interaction.button
 
 ### 调用斜线指令
 
-> container.interaction.command(listener: Listener\<InteractionCommandEvent\>)
+> interaction.command

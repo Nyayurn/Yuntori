@@ -4,24 +4,24 @@
 
 ### 获取群组频道
 
-> actions.channel.get(channelId: String): Channel
+> channel.get
 
 ### 获取群组频道列表
 
-> actions.channel.list(guildId: String, next: String? = null): List\<PaginatedData\<Channel\>\>
+> channel.list
 
 ### 创建群组频道
 
-> actions.channel.create(guildId: String, data: Channel): Channel
+> channel.create
 
 ### 修改群组频道
 
-> actions.channel.update(channelId: String, data: Channel)
+> channel.update
 
 ### 删除群组频道
 
-> actions.channel.delete(channelId: String)
+> channel.delete
 
 ### 创建私聊频道
 
-> actions.user.channel.create(userId: String, guildId: String? = null): Channel
+> user.channel.create

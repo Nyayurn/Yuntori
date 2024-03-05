@@ -1,39 +1,39 @@
 # 消息 (Message)
 
+为了使用的方便, Yutori 将 Message 实体类的 content 属性由 String 类型替换为 MessageSegment 类型
+
 ## 动作 (Action)
 
 ### 发送消息
 
-> actions.message.create(channelId: String, content: String): List\<Message\>
-> actions.message.create(channelId: String, block: MessageDslBuilder.() -\> Unit): List\<Message\>
+> message.create
 
 ### 获取消息
 
-> actions.message.get(channelId: String, messageId: String): Message
+> message.get
 
 ### 撤回消息
 
-> actions.message.delete(channelId: String, messageId: String)
+> message.delete
 
 ### 编辑消息
 
-> actions.message.update(channelId: String, messageId: String, content: String)
-> actions.message.update(channelId: String, messageId: String, block: MessageDslBuilder.() -\> Unit)
+> message.update
 
 ### 获取消息列表
 
-> actions.message.list(channelId: String, next: String? = null): List\<PaginatedData\<Message\>\>
+> message.list
 
 ## 事件 (Event)
 
 ### 消息被创建
 
-> container.message.created(listener: Listener\<MessageEvent\>)
+> message.created
 
 ### 消息被编辑
 
-> container.message.updated(listener: Listener\<MessageEvent\>)
+> message.updated
 
 ### 消息被删除
 
-> container.message.deleted(listener: Listener\<MessageEvent\>)
+> message.deleted

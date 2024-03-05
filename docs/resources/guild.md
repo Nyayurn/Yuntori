@@ -4,30 +4,30 @@
 
 ### 获取群组
 
-> actions.guild.get(guildId: String): Guild
+> guild.get
 
 ### 获取群组列表
 
-> actions.guild.list(next: String? = null): List\<PaginatedData\<Guild\>\>
+> guild.list
 
 ### 处理群组邀请
 
-> actions.guild.approve(messageId: String, approve: Boolean, comment: String)
+> guild.approve
 
 ## 事件 (Event)
 
 ### 加入群组
 
-> container.guild.added(listener: Listener\<GuildEvent\>)
+> guild.added
 
 ### 群组被修改
 
-> container.guild.updated(listener: Listener\<GuildEvent\>)
+> guild.updated
 
 ### 退出群组
 
-> container.guild.removed(listener: Listener\<GuildEvent\>)
+> guild.removed
 
 ### 接收到新的入群邀请
 
-> container.guild.request(listener: Listener\<GuildEvent\>)
+> guild.request

@@ -4,18 +4,18 @@
 
 ### 获取用户信息
 
-> actions.user.get(userId: String): User
+> user.get
 
 ### 获取好友列表
 
-> actions.friend.list(next: String? = null): List\<PaginatedData\<User\>\>
+> friend.list
 
 ### 处理好友申请
 
-> actions.friend.approve(messageId: String, approve: Boolean, comment: String? = null)
+> friend.approve
 
 ## 事件 (Event)
 
 ### 接收到新的好友申请
 
-> container.friend.request(listener: Listener\<UserEvent\>)
+> friend.request
