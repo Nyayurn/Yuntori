@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.nyayurn.yutori.next.message.MessageDslBuilder
+import com.github.nyayurn.yutori.next.message.MessageSegment
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
@@ -58,16 +59,10 @@ class Actions private constructor(
          * @param properties 配置
          */
         fun of(platform: String, selfId: String, properties: SatoriProperties, name: String) = Actions(
-            ChannelAction.of(platform, selfId, properties, name),
-            GuildAction.of(platform, selfId, properties, name),
-            LoginAction.of(platform, selfId, properties, name),
-            MessageAction.of(platform, selfId, properties, name),
-            ReactionAction.of(platform, selfId, properties, name),
-            UserAction.of(platform, selfId, properties, name),
-            FriendAction.of(platform, selfId, properties, name),
-            AdminAction.of(properties, name),
-            properties,
-            name
+            ChannelAction.of(platform, selfId, properties, name), GuildAction.of(platform, selfId, properties, name),
+            LoginAction.of(platform, selfId, properties, name), MessageAction.of(platform, selfId, properties, name),
+            ReactionAction.of(platform, selfId, properties, name), UserAction.of(platform, selfId, properties, name),
+            FriendAction.of(platform, selfId, properties, name), AdminAction.of(properties, name), properties, name
         )
 
         /**
@@ -166,9 +161,7 @@ class ChannelAction private constructor(private val generalAction: GeneralAction
 }
 
 class GuildAction private constructor(
-    val member: MemberAction,
-    val role: RoleAction,
-    private val generalAction: GeneralAction
+    val member: MemberAction, val role: RoleAction, private val generalAction: GeneralAction
 ) {
     /**
      * 获取群组
@@ -206,15 +199,13 @@ class GuildAction private constructor(
 
     companion object {
         fun of(platform: String, selfId: String, properties: SatoriProperties, name: String) = GuildAction(
-            MemberAction.of(platform, selfId, properties, name),
-            RoleAction.of(platform, selfId, properties, name),
+            MemberAction.of(platform, selfId, properties, name), RoleAction.of(platform, selfId, properties, name),
             GeneralAction(platform, selfId, properties, "guild", name)
         )
     }
 
     class MemberAction private constructor(
-        val role: RoleAction,
-        private val generalAction: GeneralAction
+        val role: RoleAction, private val generalAction: GeneralAction
     ) {
         /**
          * 获取群组成员
@@ -387,12 +378,19 @@ class MessageAction private constructor(private val generalAction: GeneralAction
      * @param channelId 频道 ID
      * @param content 消息内容
      */
-    fun create(channelId: String, content: String): List<Message> {
+    fun create(channelId: String, content: MessageSegment): List<Message> {
         return generalAction.sendWithSerialize("create") {
             put("channel_id", channelId)
-            put("content", content.replace("\n", "\\n").replace("\"", "\\\""))
+            put("content", content.toString().replace("\n", "\\n").replace("\"", "\\\""))
         }
     }
+
+    /**
+     * 使用纯文本发送消息
+     * @param channelId 频道 ID
+     * @param text 消息内容
+     */
+    fun create(channelId: String, text: String) = create(channelId, MessageSegment.of(text))
 
     /**
      * 使用 DSL 发送消息
@@ -400,7 +398,8 @@ class MessageAction private constructor(private val generalAction: GeneralAction
      * @param block 消息内容 DSL
      */
     inline fun create(channelId: String, block: MessageDslBuilder.() -> Unit) =
-        create(channelId, MessageDslBuilder().apply(block).toString())
+        create(channelId, MessageDslBuilder().apply(block).build())
+
 
     /**
      * 获取消息
@@ -432,13 +431,22 @@ class MessageAction private constructor(private val generalAction: GeneralAction
      * @param messageId 消息 ID
      * @param content 消息内容
      */
-    fun update(channelId: String, messageId: String, content: String) {
+    fun update(channelId: String, messageId: String, content: MessageSegment) {
         generalAction.send("update") {
             put("channel_id", channelId)
             put("message_id", messageId)
-            put("content", content.replace("\n", "\\n").replace("\"", "\\\""))
+            put("content", content.toString().replace("\n", "\\n").replace("\"", "\\\""))
         }
     }
+
+    /**
+     * 使用纯文本编辑消息
+     * @param channelId 频道 ID
+     * @param messageId 消息 ID
+     * @param text 消息内容
+     */
+    fun update(channelId: String, messageId: String, text: String) =
+        update(channelId, messageId, MessageSegment.of(text))
 
     /**
      * 使用 DSL 编辑消息
@@ -447,7 +455,7 @@ class MessageAction private constructor(private val generalAction: GeneralAction
      * @param block 消息内容 DSL
      */
     inline fun update(channelId: String, messageId: String, block: MessageDslBuilder.() -> Unit) =
-        update(channelId, messageId, MessageDslBuilder().apply(block).toString())
+        update(channelId, messageId, MessageDslBuilder().apply(block).build())
 
     /**
      * 获取消息列表
@@ -668,14 +676,9 @@ class AdminAction private constructor(val login: LoginAction, val webhook: Webho
  * @property logger 日志接口
  */
 class GeneralAction(
-    val platform: String?,
-    val selfId: String?,
-    val properties: SatoriProperties,
-    val resource: String,
-    val name: String
+    val platform: String?, val selfId: String?, val properties: SatoriProperties, val resource: String, val name: String
 ) {
-    val mapper: ObjectMapper =
-        jacksonObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+    val mapper: ObjectMapper = jacksonObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
     val logger = GlobalLoggerFactory.getLogger(this::class.java)
 
     fun send(method: String, body: String? = null): String = runBlocking {

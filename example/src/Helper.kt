@@ -112,9 +112,7 @@ object AiUtil {
                 actions.message.create(event.channel.id) {
                     quote { this["id"] = event.message.id }
                     img {
-                        src = "data:image/jpeg;base64,${
-                            T2IUtil(T2IConstant()).drawImageToBase64(content).substring("base64://".length)
-                        }"
+                        src = "data:image/jpeg;base64," + T2IUtil(T2IConstant()).drawImageToBase64(content).substring(9)
                     }
                 }
             }

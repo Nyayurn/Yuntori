@@ -14,12 +14,14 @@ See the Mulan PSL v2 for more details.
 
 package com.github.nyayurn.yutori.next
 
+import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.databind.node.TextNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.github.nyayurn.yutori.next.message.MessageSegment
 
 /**
  * 频道, 参考 https://satori.chat/zh-CN/resources/channel.html#channel
@@ -176,14 +178,26 @@ data class Login(
  */
 data class Message(
     val id: String,
-    val content: String,
+    val content: MessageSegment,
     val channel: Channel? = null,
     val guild: Guild? = null,
     val member: GuildMember? = null,
     val user: User? = null,
     @JsonProperty("created_at") val createdAt: Number? = null,
     @JsonProperty("updated_at") val updatedAt: Number? = null
-)
+) {
+    @JsonCreator
+    constructor(
+        @JsonProperty("id") id: String,
+        @JsonProperty("content") content: String,
+        @JsonProperty("channel") channel: Channel? = null,
+        @JsonProperty("guild") guild: Guild? = null,
+        @JsonProperty("member") member: GuildMember? = null,
+        @JsonProperty("user") user: User? = null,
+        @JsonProperty("created_at") createdAt: Number? = null,
+        @JsonProperty("updated_at") updatedAt: Number? = null
+    ): this(id, MessageSegment.of(content), channel, guild, member, user, createdAt, updatedAt)
+}
 
 /**
  * 用户, 参考 https://satori.chat/zh-CN/resources/user.html#user

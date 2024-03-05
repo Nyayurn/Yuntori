@@ -1,7 +1,11 @@
 package com.github.nyayurn.qbot
 
-import com.github.nyayurn.yutori.next.*
+import com.github.nyayurn.yutori.next.Actions
+import com.github.nyayurn.yutori.next.GlobalLoggerFactory
+import com.github.nyayurn.yutori.next.Listener
+import com.github.nyayurn.yutori.next.MessageEvent
 import com.github.nyayurn.yutori.next.message.elements.At
+import com.github.nyayurn.yutori.next.message.elements.Text
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
@@ -16,9 +20,9 @@ object CommandListener : Listener<MessageEvent> {
     private val logger = GlobalLoggerFactory.getLogger(this::class.java)
     override fun invoke(actions: Actions, event: MessageEvent) {
         if (qqHelperFilter(event)) return
-        var msg = event.message.content
-        if (msg.startsWith("/") or msg.startsWith("!")) {
-            msg = msg.substring(1)
+        val content = event.message.content.toString()
+        if (content.startsWith("/") or content.startsWith("!")) {
+            val msg = content.substring(1)
             if (msg.isNotEmpty()) {
                 commands.find { it.test(actions, event, msg) }?.let {
                     logger.info(
@@ -40,7 +44,7 @@ object OpenGraphListener : Listener<MessageEvent> {
     private val logger = GlobalLoggerFactory.getLogger(this::class.java)
     override fun invoke(actions: Actions, event: MessageEvent) {
         if (qqHelperFilter(event)) return
-        val msg = MessageUtil.extractTextChain(event.message.content).joinToString { it.toString() }
+        val msg = event.message.content.filterIsInstance<Text>().joinToString { it.toString() }
         val matcher = pattern.matcher(msg)
         if (matcher.find()) runBlocking {
             val request = HttpClient(CIO) {
@@ -91,9 +95,8 @@ object OpenGraphListener : Listener<MessageEvent> {
 object AtListener : Listener<MessageEvent> {
     override fun invoke(actions: Actions, event: MessageEvent) {
         if (qqHelperFilter(event)) return
-        val msg = MessageUtil.extractTextChain(event.message.content).joinToString { it.toString() }
-        val atBot =
-            MessageUtil.parseElementChain(event.message.content).getOrNull(0).let { it is At && it.id == event.selfId }
+        val msg = event.message.content.filterIsInstance<Text>().joinToString { it.toString() }
+        val atBot = event.message.content[0].let { it is At && it.id == event.selfId }
         if (atBot && msg.isNotEmpty()) {
             GlobalLoggerFactory.getLogger(this::class.java)
                 .info(actions.name, "User ${event.user.id} 触发命令: $AiCommand")

@@ -33,95 +33,96 @@ interface PropertiedBuilder {
         properties[key] = value
     }
 
-    fun build(): MessageElement
+    fun buildElement(): MessageElement
 }
 
 @MessageDSL
 open class MessageDslBuilder {
-    val list = mutableListOf<MessageElement>()
+    val elements = mutableListOf<MessageElement>()
 
-    fun text(element: Text) = element.apply { list += this }
-    inline fun text(block: () -> String) = Text(block()).apply { list += this }
+    fun text(element: Text) = element.apply { elements += this }
+    inline fun text(block: () -> String) = Text(block()).apply { elements += this }
 
-    fun custom(element: Custom) = element.apply { list += this }
-    inline fun custom(block: () -> String) = Custom(block()).apply { list += this }
+    fun custom(element: Custom) = element.apply { elements += this }
+    inline fun custom(block: () -> String) = Custom(block()).apply { elements += this }
 
-    fun at(element: At) = element.apply { list += this }
-    inline fun at(block: AtBuilder.() -> Unit) = AtBuilder().apply(block).build().apply { list += this }
+    fun at(element: At) = element.apply { elements += this }
+    inline fun at(block: AtBuilder.() -> Unit) = AtBuilder().apply(block).buildElement().apply { elements += this }
 
-    fun sharp(element: Sharp) = element.apply { list += this }
-    inline fun sharp(block: SharpBuilder.() -> Unit) = SharpBuilder().apply(block).build().apply { list += this }
+    fun sharp(element: Sharp) = element.apply { elements += this }
+    inline fun sharp(block: SharpBuilder.() -> Unit) = SharpBuilder().apply(block).buildElement().apply { elements += this }
 
-    fun a(element: Href) = element.apply { list += this }
-    inline fun a(block: HrefBuilder.() -> Unit) = HrefBuilder().apply(block).build().apply { list += this }
+    fun a(element: Href) = element.apply { elements += this }
+    inline fun a(block: HrefBuilder.() -> Unit) = HrefBuilder().apply(block).buildElement().apply { elements += this }
 
-    fun img(element: Image) = element.apply { list += this }
-    inline fun img(block: ImageBuilder.() -> Unit) = ImageBuilder().apply(block).build().apply { list += this }
+    fun img(element: Image) = element.apply { elements += this }
+    inline fun img(block: ImageBuilder.() -> Unit) = ImageBuilder().apply(block).buildElement().apply { elements += this }
 
-    fun audio(element: Audio) = element.apply { list += this }
-    inline fun audio(block: AudioBuilder.() -> Unit) = AudioBuilder().apply(block).build().apply { list += this }
+    fun audio(element: Audio) = element.apply { elements += this }
+    inline fun audio(block: AudioBuilder.() -> Unit) = AudioBuilder().apply(block).buildElement().apply { elements += this }
 
-    fun video(element: Video) = element.apply { list += this }
-    inline fun video(block: VideoBuilder.() -> Unit) = VideoBuilder().apply(block).build().apply { list += this }
+    fun video(element: Video) = element.apply { elements += this }
+    inline fun video(block: VideoBuilder.() -> Unit) = VideoBuilder().apply(block).buildElement().apply { elements += this }
 
-    fun file(element: File) = element.apply { list += this }
-    inline fun file(block: FileBuilder.() -> Unit) = FileBuilder().apply(block).build().apply { list += this }
+    fun file(element: File) = element.apply { elements += this }
+    inline fun file(block: FileBuilder.() -> Unit) = FileBuilder().apply(block).buildElement().apply { elements += this }
 
-    fun b(element: Bold) = element.apply { list += this }
-    inline fun b(block: BoldBuilder.() -> Unit) = BoldBuilder().apply(block).build().apply { list += this }
+    fun b(element: Bold) = element.apply { elements += this }
+    inline fun b(block: BoldBuilder.() -> Unit) = BoldBuilder().apply(block).buildElement().apply { elements += this }
 
-    fun strong(element: Strong) = element.apply { list += this }
-    inline fun strong(block: BoldBuilder.() -> Unit) = BoldBuilder().apply(block).build().apply { list += this }
+    fun strong(element: Strong) = element.apply { elements += this }
+    inline fun strong(block: BoldBuilder.() -> Unit) = BoldBuilder().apply(block).buildElement().apply { elements += this }
 
-    fun i(element: Idiomatic) = element.apply { list += this }
-    inline fun i(block: IdiomaticBuilder.() -> Unit) = IdiomaticBuilder().apply(block).build().apply { list += this }
+    fun i(element: Idiomatic) = element.apply { elements += this }
+    inline fun i(block: IdiomaticBuilder.() -> Unit) = IdiomaticBuilder().apply(block).buildElement().apply { elements += this }
 
-    fun em(element: Em) = element.apply { list += this }
-    inline fun em(block: IdiomaticBuilder.() -> Unit) = IdiomaticBuilder().apply(block).build().apply { list += this }
+    fun em(element: Em) = element.apply { elements += this }
+    inline fun em(block: IdiomaticBuilder.() -> Unit) = IdiomaticBuilder().apply(block).buildElement().apply { elements += this }
 
-    fun u(element: Underline) = element.apply { list += this }
-    inline fun u(block: UnderlineBuilder.() -> Unit) = UnderlineBuilder().apply(block).build().apply { list += this }
+    fun u(element: Underline) = element.apply { elements += this }
+    inline fun u(block: UnderlineBuilder.() -> Unit) = UnderlineBuilder().apply(block).buildElement().apply { elements += this }
 
-    fun ins(element: Ins) = element.apply { list += this }
-    inline fun ins(block: UnderlineBuilder.() -> Unit) = UnderlineBuilder().apply(block).build().apply { list += this }
+    fun ins(element: Ins) = element.apply { elements += this }
+    inline fun ins(block: UnderlineBuilder.() -> Unit) = UnderlineBuilder().apply(block).buildElement().apply { elements += this }
 
-    fun s(element: Strikethrough) = element.apply { list += this }
-    inline fun s(block: DeleteBuilder.() -> Unit) = DeleteBuilder().apply(block).build().apply { list += this }
+    fun s(element: Strikethrough) = element.apply { elements += this }
+    inline fun s(block: DeleteBuilder.() -> Unit) = DeleteBuilder().apply(block).buildElement().apply { elements += this }
 
-    fun del(element: Delete) = element.apply { list += this }
-    inline fun del(block: DeleteBuilder.() -> Unit) = DeleteBuilder().apply(block).build().apply { list += this }
+    fun del(element: Delete) = element.apply { elements += this }
+    inline fun del(block: DeleteBuilder.() -> Unit) = DeleteBuilder().apply(block).buildElement().apply { elements += this }
 
-    fun spl(element: Spl) = element.apply { list += this }
-    inline fun spl(block: SplBuilder.() -> Unit) = SplBuilder().apply(block).build().apply { list += this }
+    fun spl(element: Spl) = element.apply { elements += this }
+    inline fun spl(block: SplBuilder.() -> Unit) = SplBuilder().apply(block).buildElement().apply { elements += this }
 
-    fun code(element: Code) = element.apply { list += this }
-    inline fun code(block: CodeBuilder.() -> Unit) = CodeBuilder().apply(block).build().apply { list += this }
+    fun code(element: Code) = element.apply { elements += this }
+    inline fun code(block: CodeBuilder.() -> Unit) = CodeBuilder().apply(block).buildElement().apply { elements += this }
 
-    fun sup(element: Sup) = element.apply { list += this }
-    inline fun sup(block: SupBuilder.() -> Unit) = SupBuilder().apply(block).build().apply { list += this }
+    fun sup(element: Sup) = element.apply { elements += this }
+    inline fun sup(block: SupBuilder.() -> Unit) = SupBuilder().apply(block).buildElement().apply { elements += this }
 
-    fun sub(element: Sub) = element.apply { list += this }
-    inline fun sub(block: SubBuilder.() -> Unit) = SubBuilder().apply(block).build().apply { list += this }
+    fun sub(element: Sub) = element.apply { elements += this }
+    inline fun sub(block: SubBuilder.() -> Unit) = SubBuilder().apply(block).buildElement().apply { elements += this }
 
-    fun br(element: Br) = element.apply { list += this }
-    inline fun br(block: BrBuilder.() -> Unit) = BrBuilder().apply(block).build().apply { list += this }
+    fun br(element: Br) = element.apply { elements += this }
+    inline fun br(block: BrBuilder.() -> Unit) = BrBuilder().apply(block).buildElement().apply { elements += this }
 
-    fun p(element: Paragraph) = element.apply { list += this }
-    inline fun p(block: ParagraphBuilder.() -> Unit) = ParagraphBuilder().apply(block).build().apply { list += this }
+    fun p(element: Paragraph) = element.apply { elements += this }
+    inline fun p(block: ParagraphBuilder.() -> Unit) = ParagraphBuilder().apply(block).buildElement().apply { elements += this }
 
-    fun message(element: Message) = element.apply { list += this }
-    inline fun message(block: MessageBuilder.() -> Unit) = MessageBuilder().apply(block).build().apply { list += this }
+    fun message(element: Message) = element.apply { elements += this }
+    inline fun message(block: MessageBuilder.() -> Unit) = MessageBuilder().apply(block).buildElement().apply { elements += this }
 
-    fun quote(element: Quote) = element.apply { list += this }
-    inline fun quote(block: QuoteBuilder.() -> Unit) = QuoteBuilder().apply(block).build().apply { list += this }
+    fun quote(element: Quote) = element.apply { elements += this }
+    inline fun quote(block: QuoteBuilder.() -> Unit) = QuoteBuilder().apply(block).buildElement().apply { elements += this }
 
-    fun author(element: Author) = element.apply { list += this }
-    inline fun author(block: AuthorBuilder.() -> Unit) = AuthorBuilder().apply(block).build().apply { list += this }
+    fun author(element: Author) = element.apply { elements += this }
+    inline fun author(block: AuthorBuilder.() -> Unit) = AuthorBuilder().apply(block).buildElement().apply { elements += this }
 
-    fun button(element: Button) = element.apply { list += this }
-    inline fun button(block: ButtonBuilder.() -> Unit) = ButtonBuilder().apply(block).build().apply { list += this }
+    fun button(element: Button) = element.apply { elements += this }
+    inline fun button(block: ButtonBuilder.() -> Unit) = ButtonBuilder().apply(block).buildElement().apply { elements += this }
 
-    override fun toString() = list.joinToString("") { it.toString() }
+    open fun build() = MessageSegment(elements)
+    override fun toString() = elements.joinToString("") { it.toString() }
 
     @MessageDSL
     class AtBuilder : MessageDslBuilder(), PropertiedBuilder {
@@ -131,9 +132,9 @@ open class MessageDslBuilder {
         var name: String? by properties
         var role: String? by properties
         var type: String? by properties
-        override fun build() = At(id, name, role, type).apply {
+        override fun buildElement() = At(id, name, role, type).apply {
             properties.putAll(this@AtBuilder.properties)
-            children.addAll(list)
+            children.addAll(elements)
         }
     }
 
@@ -142,9 +143,9 @@ open class MessageDslBuilder {
         override val properties = mutableMapOf<String, Any?>("id" to "", "name" to null)
         var id: String by properties
         var name: String? by properties
-        override fun build() = Sharp(id, name).apply {
+        override fun buildElement() = Sharp(id, name).apply {
             properties.putAll(this@SharpBuilder.properties)
-            children.addAll(list)
+            children.addAll(elements)
         }
     }
 
@@ -152,9 +153,9 @@ open class MessageDslBuilder {
     class HrefBuilder : MessageDslBuilder(), PropertiedBuilder {
         override val properties = mutableMapOf<String, Any?>("href" to "")
         var href: String by properties
-        override fun build() = Href(href).apply {
+        override fun buildElement() = Href(href).apply {
             properties.putAll(this@HrefBuilder.properties)
-            children.addAll(list)
+            children.addAll(elements)
         }
     }
 
@@ -174,9 +175,9 @@ open class MessageDslBuilder {
         var timeout: String? by properties
         var width: Number? by properties
         var height: Number? by properties
-        override fun build() = Image(src, title, cache, timeout, width, height).apply {
+        override fun buildElement() = Image(src, title, cache, timeout, width, height).apply {
             properties.putAll(this@ImageBuilder.properties)
-            children.addAll(list)
+            children.addAll(elements)
         }
     }
 
@@ -196,9 +197,9 @@ open class MessageDslBuilder {
         var timeout: String? by properties
         var duration: Number? by properties
         var poster: String? by properties
-        override fun build() = Audio(src, title, cache, timeout, duration, poster).apply {
+        override fun buildElement() = Audio(src, title, cache, timeout, duration, poster).apply {
             properties.putAll(this@AudioBuilder.properties)
-            children.addAll(list)
+            children.addAll(elements)
         }
     }
 
@@ -222,9 +223,9 @@ open class MessageDslBuilder {
         var height: Number? by properties
         var duration: Number? by properties
         var poster: String? by properties
-        override fun build() = Video(src, title, cache, timeout, width, height, duration, poster).apply {
+        override fun buildElement() = Video(src, title, cache, timeout, width, height, duration, poster).apply {
             properties.putAll(this@VideoBuilder.properties)
-            children.addAll(list)
+            children.addAll(elements)
         }
     }
 
@@ -242,99 +243,99 @@ open class MessageDslBuilder {
         var cache: Boolean? by properties
         var timeout: String? by properties
         var poster: String? by properties
-        override fun build() = File(src, title, cache, timeout, poster).apply {
+        override fun buildElement() = File(src, title, cache, timeout, poster).apply {
             properties.putAll(this@FileBuilder.properties)
-            children.addAll(list)
+            children.addAll(elements)
         }
     }
 
     @MessageDSL
     class BoldBuilder : MessageDslBuilder(), PropertiedBuilder {
         override val properties = mutableMapOf<String, Any?>()
-        override fun build() = Bold().apply {
+        override fun buildElement() = Bold().apply {
             properties.putAll(this@BoldBuilder.properties)
-            children.addAll(list)
+            children.addAll(elements)
         }
     }
 
     @MessageDSL
     class IdiomaticBuilder : MessageDslBuilder(), PropertiedBuilder {
         override val properties = mutableMapOf<String, Any?>()
-        override fun build() = Idiomatic().apply {
+        override fun buildElement() = Idiomatic().apply {
             properties.putAll(this@IdiomaticBuilder.properties)
-            children.addAll(list)
+            children.addAll(elements)
         }
     }
 
     @MessageDSL
     class UnderlineBuilder : MessageDslBuilder(), PropertiedBuilder {
         override val properties = mutableMapOf<String, Any?>()
-        override fun build() = Underline().apply {
+        override fun buildElement() = Underline().apply {
             properties.putAll(this@UnderlineBuilder.properties)
-            children.addAll(list)
+            children.addAll(elements)
         }
     }
 
     @MessageDSL
     class DeleteBuilder : MessageDslBuilder(), PropertiedBuilder {
         override val properties = mutableMapOf<String, Any?>()
-        override fun build() = Strikethrough().apply {
+        override fun buildElement() = Strikethrough().apply {
             properties.putAll(this@DeleteBuilder.properties)
-            children.addAll(list)
+            children.addAll(elements)
         }
     }
 
     @MessageDSL
     class SplBuilder : MessageDslBuilder(), PropertiedBuilder {
         override val properties = mutableMapOf<String, Any?>()
-        override fun build() = Spl().apply {
+        override fun buildElement() = Spl().apply {
             properties.putAll(this@SplBuilder.properties)
-            children.addAll(list)
+            children.addAll(elements)
         }
     }
 
     @MessageDSL
     class CodeBuilder : MessageDslBuilder(), PropertiedBuilder {
         override val properties = mutableMapOf<String, Any?>()
-        override fun build() = Code().apply {
+        override fun buildElement() = Code().apply {
             properties.putAll(this@CodeBuilder.properties)
-            children.addAll(list)
+            children.addAll(elements)
         }
     }
 
     @MessageDSL
     class SupBuilder : MessageDslBuilder(), PropertiedBuilder {
         override val properties = mutableMapOf<String, Any?>()
-        override fun build() = Sup().apply {
+        override fun buildElement() = Sup().apply {
             properties.putAll(this@SupBuilder.properties)
-            children.addAll(list)
+            children.addAll(elements)
         }
     }
 
     @MessageDSL
     class SubBuilder : MessageDslBuilder(), PropertiedBuilder {
         override val properties = mutableMapOf<String, Any?>()
-        override fun build() = Sub().apply {
+        override fun buildElement() = Sub().apply {
             properties.putAll(this@SubBuilder.properties)
-            children.addAll(list)
+            children.addAll(elements)
         }
     }
 
     @MessageDSL
     class BrBuilder : MessageDslBuilder(), PropertiedBuilder {
         override val properties = mutableMapOf<String, Any?>()
-        override fun build() = Br().apply {
+        override fun buildElement() = Br().apply {
             properties.putAll(this@BrBuilder.properties)
-            children.addAll(list)
+            children.addAll(elements)
         }
     }
 
     @MessageDSL
     class ParagraphBuilder : MessageDslBuilder(), PropertiedBuilder {
         override val properties = mutableMapOf<String, Any?>()
-        override fun build() = Paragraph().apply {
+        override fun buildElement() = Paragraph().apply {
             properties.putAll(this@ParagraphBuilder.properties)
-            children.addAll(list)
+            children.addAll(elements)
         }
     }
 
@@ -343,18 +344,18 @@ open class MessageDslBuilder {
         override val properties = mutableMapOf<String, Any?>("id" to null, "forward" to null)
         var id: String? by properties
         var forward: Boolean? by properties
-        override fun build() = Message(id, forward).apply {
+        override fun buildElement() = Message(id, forward).apply {
             properties.putAll(this@MessageBuilder.properties)
-            children.addAll(list)
+            children.addAll(elements)
         }
     }
 
     @MessageDSL
     class QuoteBuilder : MessageDslBuilder(), PropertiedBuilder {
         override val properties = mutableMapOf<String, Any?>()
-        override fun build() = Quote().apply {
+        override fun buildElement() = Quote().apply {
             properties.putAll(this@QuoteBuilder.properties)
-            children.addAll(list)
+            children.addAll(elements)
         }
     }
 
@@ -364,9 +365,9 @@ open class MessageDslBuilder {
         var id: String? by properties
         var name: String? by properties
         var avatar: String? by properties
-        override fun build() = Author(id, name, avatar).apply {
+        override fun buildElement() = Author(id, name, avatar).apply {
             properties.putAll(this@AuthorBuilder.properties)
-            children.addAll(list)
+            children.addAll(elements)
         }
     }
 
@@ -379,9 +380,9 @@ open class MessageDslBuilder {
         var href: String? by properties
         var text: String? by properties
         var theme: String? by properties
-        override fun build() = Button(id, type, href, text, theme).apply {
+        override fun buildElement() = Button(id, type, href, text, theme).apply {
             properties.putAll(this@ButtonBuilder.properties)
-            children.addAll(list)
+            children.addAll(elements)
         }
     }
 }
