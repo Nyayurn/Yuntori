@@ -10,33 +10,9 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details.
  */
 
-@file:Suppress("MemberVisibilityCanBePrivate", "ConvertSecondaryConstructorToPrimary")
-
-package com.github.nyayurn.yutori.next.message.elements
+package com.github.nyayurn.yuntori.message.elements
 
 /**
  * 引用
  */
 class Quote : NodeMessageElement("quote")
-
-/**
- * 作者
- * @property id 用户 ID
- * @property name 昵称
- * @property avatar 头像 URL
- */
-class Author : NodeMessageElement {
-    var id: String? by super.properties
-    var name: String? by super.properties
-    var avatar: String? by super.properties
-
-    constructor(
-        id: String? = null,
-        name: String? = null,
-        avatar: String? = null
-    ) : super("author") {
-        this.id = id
-        this.name = name
-        this.avatar = avatar
-    }
-}

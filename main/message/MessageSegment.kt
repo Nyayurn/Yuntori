@@ -10,9 +10,9 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details.
  */
 
-package com.github.nyayurn.yutori.next.message
+package com.github.nyayurn.yuntori.message
 
-import com.github.nyayurn.yutori.next.message.elements.*
+import com.github.nyayurn.yuntori.message.elements.*
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.Node
@@ -30,12 +30,8 @@ class MessageSegment(private val elements: List<MessageElement>): List<MessageEl
         private fun parseElement(node: Node): MessageElement = when (node) {
             is TextNode -> Text(node.text())
             is Element -> when (node.tagName()) {
-                              "at" -> At()
-                              "sharp" -> Sharp(node.attr("id"))
                               "a" -> Href(node.attr("href"))
                               "img" -> Image(node.attr("src"))
-                              "audio" -> Audio(node.attr("src"))
-                              "video" -> Video(node.attr("src"))
                               "file" -> File(node.attr("src"))
                               "b" -> Bold()
                               "strong" -> Strong()
@@ -45,23 +41,19 @@ class MessageSegment(private val elements: List<MessageElement>): List<MessageEl
                               "ins" -> Ins()
                               "s" -> Strikethrough()
                               "del" -> Delete()
-                              "spl" -> Spl()
                               "code" -> Code()
-                              "sup" -> Sup()
-                              "sub" -> Sub()
                               "br" -> Br()
                               "p" -> Paragraph()
                               "message" -> Message()
                               "quote" -> Quote()
-                              "author" -> Author()
                               "button" -> Button()
                               else -> null
                           }?.apply {
                 for (attr in node.attributes()) this[attr.key] = attr.value
                 for (child in node.childNodes()) this += parseElement(child)
-            } ?: Custom(node.toString())
+            } ?: Text(node.toString())
 
-            else -> Custom(node.toString())
+            else -> Text(node.toString())
         }
     }
 }

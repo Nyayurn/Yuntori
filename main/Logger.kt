@@ -10,9 +10,9 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details.
  */
 
-package com.github.nyayurn.yutori.next
+package com.github.nyayurn.yuntori
 
-import com.github.nyayurn.yutori.next.Level.*
+import com.github.nyayurn.yuntori.Level.*
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 

@@ -1,11 +1,10 @@
 package com.github.nyayurn.qbot
 
-import com.github.nyayurn.yutori.next.Actions
-import com.github.nyayurn.yutori.next.GlobalLoggerFactory
-import com.github.nyayurn.yutori.next.Listener
-import com.github.nyayurn.yutori.next.MessageEvent
-import com.github.nyayurn.yutori.next.message.elements.At
-import com.github.nyayurn.yutori.next.message.elements.Text
+import com.github.nyayurn.yuntori.Actions
+import com.github.nyayurn.yuntori.GlobalLoggerFactory
+import com.github.nyayurn.yuntori.Listener
+import com.github.nyayurn.yuntori.MessageEvent
+import com.github.nyayurn.yuntori.message.elements.Text
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
@@ -19,7 +18,6 @@ object CommandListener : Listener<MessageEvent> {
     private val commands: Array<Command> = arrayOf(AiCommand, HelpCommand, EchoCommand)
     private val logger = GlobalLoggerFactory.getLogger(this::class.java)
     override fun invoke(actions: Actions, event: MessageEvent) {
-        if (qqHelperFilter(event)) return
         val content = event.message.content.toString()
         if (content.startsWith("/") or content.startsWith("!")) {
             val msg = content.substring(1)
@@ -31,8 +29,11 @@ object CommandListener : Listener<MessageEvent> {
                     )
                     it.command(actions, event, msg)
                 } ?: actions.message.create(event.channel.id) {
-                    quote { this["id"] = event.message.id }
-                    text { "未知命令: ${msg.split(" ")[0]}" }
+                    message {
+                        markdown = true
+                        quote { elements += event.message.content }
+                        text { "未知命令: ${msg.split(" ")[0]}" }
+                    }
                 }
             }
         }
@@ -43,7 +44,6 @@ object OpenGraphListener : Listener<MessageEvent> {
     private val pattern = Pattern.compile("(http(s)?://[\\w./-]+)")
     private val logger = GlobalLoggerFactory.getLogger(this::class.java)
     override fun invoke(actions: Actions, event: MessageEvent) {
-        if (qqHelperFilter(event)) return
         val msg = event.message.content.filterIsInstance<Text>().joinToString { it.toString() }
         val matcher = pattern.matcher(msg)
         if (matcher.find()) runBlocking {
@@ -59,22 +59,25 @@ object OpenGraphListener : Listener<MessageEvent> {
                 if (title != null || desc != null || img != null || url != null) {
                     logger.info(actions.name, "User ${event.user.id} 触发监听器: $OpenGraphListener")
                     actions.message.create(event.channel.id) {
-                        quote { this["id"] = event.message.id }
-                        title?.let {
-                            text { title }
-                        }
-                        desc?.let {
-                            if (title != null) {
-                                text { "\n" }
+                        message {
+                            markdown = true
+                            quote { elements += event.message.content }
+                            title?.let {
+                                text { title }
                             }
-                            text { desc }
-                        }
-                        img?.let {
-                            img { src = img }
-                        }
-                        url?.let {
-                            a {
-                                href = url
+                            desc?.let {
+                                if (title != null) {
+                                    text { "\n" }
+                                }
+                                text { desc }
+                            }
+                            img?.let {
+                                img { src = img }
+                            }
+                            url?.let {
+                                a {
+                                    href = url
+                                }
                             }
                         }
                     }
@@ -82,36 +85,15 @@ object OpenGraphListener : Listener<MessageEvent> {
             } catch (e: IOException) {
                 if (request.status.value != 200) {
                     actions.message.create(event.channel.id) {
-                        quote { this["id"] = event.message.id }
-                        text { "OpenGraph: 获取失败: ${request.status}" }
+                        message {
+                            markdown = true
+                            quote { elements += event.message.content }
+                            text { "OpenGraph: 获取失败: ${request.status}" }
+                        }
                     }
                 }
                 e.printStackTrace()
             }
-        }
-    }
-}
-
-object AtListener : Listener<MessageEvent> {
-    override fun invoke(actions: Actions, event: MessageEvent) {
-        if (qqHelperFilter(event)) return
-        val msg = event.message.content.filterIsInstance<Text>().joinToString { it.toString() }
-        val atBot = event.message.content[0].let { it is At && it.id == event.selfId }
-        if (atBot && msg.isNotEmpty()) {
-            GlobalLoggerFactory.getLogger(this::class.java)
-                .info(actions.name, "User ${event.user.id} 触发命令: $AiCommand")
-            AiCommand.run(actions, event, msg)
-        }
-    }
-}
-
-object YzListener : Listener<MessageEvent> {
-    override fun invoke(actions: Actions, event: MessageEvent) {
-        if (event.user.id == "3583477473") {
-            actions.message.delete(event.channel.id, actions.message.create(event.channel.id) {
-                quote { this["id"] = event.message.id }
-                text { "#撤回" }
-            }[0].id)
         }
     }
 }

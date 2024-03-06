@@ -1,11 +1,11 @@
 <div align="center">
 
-# Yutori
+# Yuntori
 
-一个基于 [Satori](https://satori.chat) 协议的 [Kotlin](https://kotlinlang.org) 多平台机器人开发框架
+一个 [Kotlin](https://kotlinlang.org) 的 [云湖](https://yhchat.com) 机器人开发框架
 
 ![](https://img.shields.io/badge/JDK-8+-brightgreen.svg?style=flat-square)
-[![](https://jitpack.io/v/Nyayurn/Yutori-Next.svg?style=flat-square)](https://jitpack.io/#Nyayurn/Yutori-Next)
+[![](https://jitpack.io/v/Nyayurn/Yuntori.svg?style=flat-square)](https://jitpack.io/#Nyayurn/Yuntori)
 </div>
 
-## [文档](https://nyayurn.github.io/Yutori-Next)
+## [文档](https://nyayurn.github.io/Yuntori)

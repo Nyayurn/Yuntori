@@ -12,7 +12,7 @@ See the Mulan PSL v2 for more details.
 
 @file:Suppress("unused")
 
-package com.github.nyayurn.yutori.next
+package com.github.nyayurn.yuntori
 
 /**
  * JsonObject 字符串 DSL 构建器
@@ -83,9 +83,4 @@ class JsonArrayDSLBuilder {
             )
         }
     }
-}
-
-object MessageUtil {
-    fun String.encode() = replace("&", "&amp;").replace("\"", "&quot;").replace("<", "&lt;").replace(">", "&gt;")
-    fun String.decode() = replace("&gt;", ">").replace("&lt;", "<").replace("&quot;", "\"").replace("&amp;", "&")
 }

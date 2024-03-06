@@ -12,9 +12,9 @@ See the Mulan PSL v2 for more details.
 
 @file:Suppress("unused", "MemberVisibilityCanBePrivate")
 
-package com.github.nyayurn.yutori.next.message
+package com.github.nyayurn.yuntori.message
 
-import com.github.nyayurn.yutori.next.message.elements.*
+import com.github.nyayurn.yuntori.message.elements.*
 
 /**
  * 消息 DSL 构造器
@@ -26,13 +26,7 @@ inline fun message(dsl: MessageDslBuilder.() -> Unit) = MessageDslBuilder().appl
 @DslMarker
 annotation class MessageDSL
 
-interface PropertiedBuilder {
-    val properties: MutableMap<String, Any?>
-    operator fun get(key: String) = properties[key]
-    operator fun set(key: String, value: Any?) {
-        properties[key] = value
-    }
-
+interface ElementBuilder {
     fun buildElement(): MessageElement
 }
 
@@ -43,26 +37,11 @@ open class MessageDslBuilder {
     fun text(element: Text) = element.apply { elements += this }
     inline fun text(block: () -> String) = Text(block()).apply { elements += this }
 
-    fun custom(element: Custom) = element.apply { elements += this }
-    inline fun custom(block: () -> String) = Custom(block()).apply { elements += this }
-
-    fun at(element: At) = element.apply { elements += this }
-    inline fun at(block: AtBuilder.() -> Unit) = AtBuilder().apply(block).buildElement().apply { elements += this }
-
-    fun sharp(element: Sharp) = element.apply { elements += this }
-    inline fun sharp(block: SharpBuilder.() -> Unit) = SharpBuilder().apply(block).buildElement().apply { elements += this }
-
     fun a(element: Href) = element.apply { elements += this }
     inline fun a(block: HrefBuilder.() -> Unit) = HrefBuilder().apply(block).buildElement().apply { elements += this }
 
     fun img(element: Image) = element.apply { elements += this }
     inline fun img(block: ImageBuilder.() -> Unit) = ImageBuilder().apply(block).buildElement().apply { elements += this }
-
-    fun audio(element: Audio) = element.apply { elements += this }
-    inline fun audio(block: AudioBuilder.() -> Unit) = AudioBuilder().apply(block).buildElement().apply { elements += this }
-
-    fun video(element: Video) = element.apply { elements += this }
-    inline fun video(block: VideoBuilder.() -> Unit) = VideoBuilder().apply(block).buildElement().apply { elements += this }
 
     fun file(element: File) = element.apply { elements += this }
     inline fun file(block: FileBuilder.() -> Unit) = FileBuilder().apply(block).buildElement().apply { elements += this }
@@ -91,20 +70,11 @@ open class MessageDslBuilder {
     fun del(element: Delete) = element.apply { elements += this }
     inline fun del(block: DeleteBuilder.() -> Unit) = DeleteBuilder().apply(block).buildElement().apply { elements += this }
 
-    fun spl(element: Spl) = element.apply { elements += this }
-    inline fun spl(block: SplBuilder.() -> Unit) = SplBuilder().apply(block).buildElement().apply { elements += this }
-
     fun code(element: Code) = element.apply { elements += this }
     inline fun code(block: CodeBuilder.() -> Unit) = CodeBuilder().apply(block).buildElement().apply { elements += this }
 
-    fun sup(element: Sup) = element.apply { elements += this }
-    inline fun sup(block: SupBuilder.() -> Unit) = SupBuilder().apply(block).buildElement().apply { elements += this }
-
-    fun sub(element: Sub) = element.apply { elements += this }
-    inline fun sub(block: SubBuilder.() -> Unit) = SubBuilder().apply(block).buildElement().apply { elements += this }
-
     fun br(element: Br) = element.apply { elements += this }
-    inline fun br(block: BrBuilder.() -> Unit) = BrBuilder().apply(block).buildElement().apply { elements += this }
+    inline fun br(block: Br.() -> Unit) = Br().apply(block).apply { elements += this }
 
     fun p(element: Paragraph) = element.apply { elements += this }
     inline fun p(block: ParagraphBuilder.() -> Unit) = ParagraphBuilder().apply(block).buildElement().apply { elements += this }
@@ -115,9 +85,6 @@ open class MessageDslBuilder {
     fun quote(element: Quote) = element.apply { elements += this }
     inline fun quote(block: QuoteBuilder.() -> Unit) = QuoteBuilder().apply(block).buildElement().apply { elements += this }
 
-    fun author(element: Author) = element.apply { elements += this }
-    inline fun author(block: AuthorBuilder.() -> Unit) = AuthorBuilder().apply(block).buildElement().apply { elements += this }
-
     fun button(element: Button) = element.apply { elements += this }
     inline fun button(block: ButtonBuilder.() -> Unit) = ButtonBuilder().apply(block).buildElement().apply { elements += this }
 
@@ -125,264 +92,73 @@ open class MessageDslBuilder {
     override fun toString() = elements.joinToString("") { it.toString() }
 
     @MessageDSL
-    class AtBuilder : MessageDslBuilder(), PropertiedBuilder {
-        override val properties =
-            mutableMapOf<String, Any?>("id" to null, "name" to null, "role" to null, "type" to null)
-        var id: String? by properties
-        var name: String? by properties
-        var role: String? by properties
-        var type: String? by properties
-        override fun buildElement() = At(id, name, role, type).apply {
-            properties.putAll(this@AtBuilder.properties)
-            children.addAll(elements)
-        }
+    class HrefBuilder : MessageDslBuilder(), ElementBuilder {
+        var href: String = ""
+        override fun buildElement() = Href(href).apply { children.addAll(elements) }
     }
 
     @MessageDSL
-    class SharpBuilder : MessageDslBuilder(), PropertiedBuilder {
-        override val properties = mutableMapOf<String, Any?>("id" to "", "name" to null)
-        var id: String by properties
-        var name: String? by properties
-        override fun buildElement() = Sharp(id, name).apply {
-            properties.putAll(this@SharpBuilder.properties)
-            children.addAll(elements)
-        }
+    class ImageBuilder : MessageDslBuilder(), ElementBuilder {
+        var src: String = ""
+        var title: String? = null
+        override fun buildElement() = Image(src, title).apply { children.addAll(elements) }
     }
 
     @MessageDSL
-    class HrefBuilder : MessageDslBuilder(), PropertiedBuilder {
-        override val properties = mutableMapOf<String, Any?>("href" to "")
-        var href: String by properties
-        override fun buildElement() = Href(href).apply {
-            properties.putAll(this@HrefBuilder.properties)
-            children.addAll(elements)
-        }
+    class FileBuilder : MessageDslBuilder(), ElementBuilder {
+        var src: String = ""
+        var title: String? = null
+        override fun buildElement() = File(src, title).apply { children.addAll(elements) }
     }
 
     @MessageDSL
-    class ImageBuilder : MessageDslBuilder(), PropertiedBuilder {
-        override val properties = mutableMapOf<String, Any?>(
-            "src" to "",
-            "title" to null,
-            "cache" to null,
-            "timeout" to null,
-            "width" to null,
-            "height" to null
-        )
-        var src: String by properties
-        var title: String? by properties
-        var cache: Boolean? by properties
-        var timeout: String? by properties
-        var width: Number? by properties
-        var height: Number? by properties
-        override fun buildElement() = Image(src, title, cache, timeout, width, height).apply {
-            properties.putAll(this@ImageBuilder.properties)
-            children.addAll(elements)
-        }
+    class BoldBuilder : MessageDslBuilder(), ElementBuilder {
+        override fun buildElement() = Bold().apply { children.addAll(elements) }
     }
 
     @MessageDSL
-    class AudioBuilder : MessageDslBuilder(), PropertiedBuilder {
-        override val properties = mutableMapOf<String, Any?>(
-            "src" to "",
-            "title" to null,
-            "cache" to null,
-            "timeout" to null,
-            "duration" to null,
-            "poster" to null
-        )
-        var src: String by properties
-        var title: String? by properties
-        var cache: Boolean? by properties
-        var timeout: String? by properties
-        var duration: Number? by properties
-        var poster: String? by properties
-        override fun buildElement() = Audio(src, title, cache, timeout, duration, poster).apply {
-            properties.putAll(this@AudioBuilder.properties)
-            children.addAll(elements)
-        }
+    class IdiomaticBuilder : MessageDslBuilder(), ElementBuilder {
+        override fun buildElement() = Idiomatic().apply { children.addAll(elements) }
     }
 
     @MessageDSL
-    class VideoBuilder : MessageDslBuilder(), PropertiedBuilder {
-        override val properties = mutableMapOf<String, Any?>(
-            "src" to "",
-            "title" to null,
-            "cache" to null,
-            "timeout" to null,
-            "width" to null,
-            "height" to null,
-            "duration" to null,
-            "poster" to null
-        )
-        var src: String by properties
-        var title: String? by properties
-        var cache: Boolean? by properties
-        var timeout: String? by properties
-        var width: Number? by properties
-        var height: Number? by properties
-        var duration: Number? by properties
-        var poster: String? by properties
-        override fun buildElement() = Video(src, title, cache, timeout, width, height, duration, poster).apply {
-            properties.putAll(this@VideoBuilder.properties)
-            children.addAll(elements)
-        }
+    class UnderlineBuilder : MessageDslBuilder(), ElementBuilder {
+        override fun buildElement() = Underline().apply { children.addAll(elements) }
     }
 
     @MessageDSL
-    class FileBuilder : MessageDslBuilder(), PropertiedBuilder {
-        override val properties = mutableMapOf<String, Any?>(
-            "src" to "",
-            "title" to null,
-            "cache" to null,
-            "timeout" to null,
-            "poster" to null
-        )
-        var src: String by properties
-        var title: String? by properties
-        var cache: Boolean? by properties
-        var timeout: String? by properties
-        var poster: String? by properties
-        override fun buildElement() = File(src, title, cache, timeout, poster).apply {
-            properties.putAll(this@FileBuilder.properties)
-            children.addAll(elements)
-        }
+    class DeleteBuilder : MessageDslBuilder(), ElementBuilder {
+        override fun buildElement() = Strikethrough().apply { children.addAll(elements) }
     }
 
     @MessageDSL
-    class BoldBuilder : MessageDslBuilder(), PropertiedBuilder {
-        override val properties = mutableMapOf<String, Any?>()
-        override fun buildElement() = Bold().apply {
-            properties.putAll(this@BoldBuilder.properties)
-            children.addAll(elements)
-        }
+    class CodeBuilder : MessageDslBuilder(), ElementBuilder {
+        var lang: String = ""
+        override fun buildElement() = Code(lang).apply { children.addAll(elements) }
     }
 
     @MessageDSL
-    class IdiomaticBuilder : MessageDslBuilder(), PropertiedBuilder {
-        override val properties = mutableMapOf<String, Any?>()
-        override fun buildElement() = Idiomatic().apply {
-            properties.putAll(this@IdiomaticBuilder.properties)
-            children.addAll(elements)
-        }
+    class ParagraphBuilder : MessageDslBuilder(), ElementBuilder {
+        override fun buildElement() = Paragraph().apply { children.addAll(elements) }
     }
 
     @MessageDSL
-    class UnderlineBuilder : MessageDslBuilder(), PropertiedBuilder {
-        override val properties = mutableMapOf<String, Any?>()
-        override fun buildElement() = Underline().apply {
-            properties.putAll(this@UnderlineBuilder.properties)
-            children.addAll(elements)
-        }
+    class MessageBuilder : MessageDslBuilder(), ElementBuilder {
+        var markdown: Boolean = false
+        override fun buildElement() = Message(markdown).apply { children.addAll(elements) }
     }
 
     @MessageDSL
-    class DeleteBuilder : MessageDslBuilder(), PropertiedBuilder {
-        override val properties = mutableMapOf<String, Any?>()
-        override fun buildElement() = Strikethrough().apply {
-            properties.putAll(this@DeleteBuilder.properties)
-            children.addAll(elements)
-        }
+    class QuoteBuilder : MessageDslBuilder(), ElementBuilder {
+        override fun buildElement() = Quote().apply { children.addAll(elements) }
     }
 
     @MessageDSL
-    class SplBuilder : MessageDslBuilder(), PropertiedBuilder {
-        override val properties = mutableMapOf<String, Any?>()
-        override fun buildElement() = Spl().apply {
-            properties.putAll(this@SplBuilder.properties)
-            children.addAll(elements)
-        }
-    }
-
-    @MessageDSL
-    class CodeBuilder : MessageDslBuilder(), PropertiedBuilder {
-        override val properties = mutableMapOf<String, Any?>()
-        override fun buildElement() = Code().apply {
-            properties.putAll(this@CodeBuilder.properties)
-            children.addAll(elements)
-        }
-    }
-
-    @MessageDSL
-    class SupBuilder : MessageDslBuilder(), PropertiedBuilder {
-        override val properties = mutableMapOf<String, Any?>()
-        override fun buildElement() = Sup().apply {
-            properties.putAll(this@SupBuilder.properties)
-            children.addAll(elements)
-        }
-    }
-
-    @MessageDSL
-    class SubBuilder : MessageDslBuilder(), PropertiedBuilder {
-        override val properties = mutableMapOf<String, Any?>()
-        override fun buildElement() = Sub().apply {
-            properties.putAll(this@SubBuilder.properties)
-            children.addAll(elements)
-        }
-    }
-
-    @MessageDSL
-    class BrBuilder : MessageDslBuilder(), PropertiedBuilder {
-        override val properties = mutableMapOf<String, Any?>()
-        override fun buildElement() = Br().apply {
-            properties.putAll(this@BrBuilder.properties)
-            children.addAll(elements)
-        }
-    }
-
-    @MessageDSL
-    class ParagraphBuilder : MessageDslBuilder(), PropertiedBuilder {
-        override val properties = mutableMapOf<String, Any?>()
-        override fun buildElement() = Paragraph().apply {
-            properties.putAll(this@ParagraphBuilder.properties)
-            children.addAll(elements)
-        }
-    }
-
-    @MessageDSL
-    class MessageBuilder : MessageDslBuilder(), PropertiedBuilder {
-        override val properties = mutableMapOf<String, Any?>("id" to null, "forward" to null)
-        var id: String? by properties
-        var forward: Boolean? by properties
-        override fun buildElement() = Message(id, forward).apply {
-            properties.putAll(this@MessageBuilder.properties)
-            children.addAll(elements)
-        }
-    }
-
-    @MessageDSL
-    class QuoteBuilder : MessageDslBuilder(), PropertiedBuilder {
-        override val properties = mutableMapOf<String, Any?>()
-        override fun buildElement() = Quote().apply {
-            properties.putAll(this@QuoteBuilder.properties)
-            children.addAll(elements)
-        }
-    }
-
-    @MessageDSL
-    class AuthorBuilder : MessageDslBuilder(), PropertiedBuilder {
-        override val properties = mutableMapOf<String, Any?>("id" to null, "name" to null, "avatar" to null)
-        var id: String? by properties
-        var name: String? by properties
-        var avatar: String? by properties
-        override fun buildElement() = Author(id, name, avatar).apply {
-            properties.putAll(this@AuthorBuilder.properties)
-            children.addAll(elements)
-        }
-    }
-
-    @MessageDSL
-    class ButtonBuilder : MessageDslBuilder(), PropertiedBuilder {
-        override val properties =
-            mutableMapOf<String, Any?>("id" to null, "type" to null, "href" to null, "text" to null, "theme" to null)
-        var id: String? by properties
-        var type: String? by properties
-        var href: String? by properties
-        var text: String? by properties
-        var theme: String? by properties
-        override fun buildElement() = Button(id, type, href, text, theme).apply {
-            properties.putAll(this@ButtonBuilder.properties)
-            children.addAll(elements)
-        }
+    class ButtonBuilder : MessageDslBuilder(), ElementBuilder {
+        var id: String? = null
+        var type: String? = null
+        var href: String? = null
+        var text: String? = null
+        override fun buildElement() = Button(id, type, href, text).apply { children.addAll(elements) }
     }
 }

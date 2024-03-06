@@ -12,7 +12,7 @@ See the Mulan PSL v2 for more details.
 
 @file:Suppress("unused", "UNUSED_PARAMETER")
 
-package com.github.nyayurn.yutori.next
+package com.github.nyayurn.yuntori
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.databind.node.TextNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.github.nyayurn.yutori.next.message.MessageSegment
+import com.github.nyayurn.yuntori.message.MessageSegment
 
 /**
  * 频道, 参考 https://satori.chat/zh-CN/resources/channel.html#channel
@@ -242,14 +242,9 @@ data class Signaling(val op: Int, var body: Body? = null) {
             val type = event.type
             when {
                 type.startsWith("guild-member-") -> GuildMemberEvent.parse(event)
-                type.startsWith("guild-role-") -> GuildRoleEvent.parse(event)
-                type.startsWith("guild-") -> GuildEvent.parse(event)
                 type == InteractionEvents.BUTTON -> InteractionButtonEvent.parse(event)
                 type == InteractionEvents.COMMAND -> InteractionCommandEvent.parse(event)
-                type.startsWith("login-") -> LoginEvent.parse(event)
                 type.startsWith("message-") -> MessageEvent.parse(event)
-                type.startsWith("reaction-") -> ReactionEvent.parse(event)
-                type.startsWith("friend-") -> UserEvent.parse(event)
                 else -> event
             }
         } catch (e: Throwable) {
@@ -311,29 +306,47 @@ data class PaginatedData<T>(
 )
 
 /**
- * Satori Server 配置
- * @property host Satori Server 主机
- * @property port Satori Server 端口
- * @property path Satori Server 路径
- * @property token Satori Server 鉴权令牌
- * @property version Satori Server 协议版本
+ * 云湖 Server 配置
+ * @property host 云湖 Server 主机
+ * @property port 云湖 Server 端口
+ * @property path 云湖 Server 路径
+ * @property token 云湖 Server 鉴权令牌
+ * @property version 云湖 Server 协议版本
  */
-data class SatoriProperties(
-    val host: String = "127.0.0.1",
+data class YunhuProperties(
+    val host: String = "chat-go.jwzhd.com",
     val port: Int = 5500,
-    val path: String = "",
+    val path: String = "open-apis",
     val token: String? = null,
     val version: String = "v1"
 )
 
 /**
- * Satori WebHook 配置
+ * WebHook Server 配置
  * @property serverHost WebHook Server 监听主机
  * @property serverPort WebHook Server 监听端口
- * @property server Satori Server 配置
+ * @property server 云湖 Server 配置
  */
 data class WebHookProperties(
     val serverHost: String = "0.0.0.0",
     val serverPort: Int = 8080,
-    val server: SatoriProperties
+    val server: YunhuProperties
+)
+
+abstract class YunhuContent {
+    val buttons = mutableListOf<YunhuButton>()
+}
+
+open class TextContent(text: String = "") : YunhuContent() {
+    val text: StringBuilder = StringBuilder(text)
+}
+class ImageContent(val imageUrl: String) : YunhuContent()
+class MarkdownContent(text: String = "") : TextContent(text)
+class FileContent(val fileName: String, val fileUrl: String) : YunhuContent()
+
+data class YunhuButton(
+    val text: String,
+    val actionType: Int,
+    val url: String?,
+    val value: String?
 )

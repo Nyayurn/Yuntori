@@ -10,12 +10,12 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details.
  */
 
-package com.github.nyayurn.yutori.next.message.elements
+package com.github.nyayurn.yuntori.message.elements
 
 /**
  * 修饰元素
  */
-abstract class DecorationElement(nodeName: String) : NodeMessageElement(nodeName)
+abstract class DecorationElement(name: String, vararg pairs: Pair<String, Any?>) : NodeMessageElement(name, *pairs)
 
 /**
  * 粗体
@@ -58,21 +58,8 @@ class Strikethrough : DecorationElement("s")
 class Delete : DecorationElement("del")
 
 /**
- * 剧透
- */
-class Spl : DecorationElement("spl")
-
-/**
  * 代码
  */
-class Code : DecorationElement("code")
-
-/**
- * 上标
- */
-class Sup : DecorationElement("sup")
-
-/**
- * 下标
- */
-class Sub : DecorationElement("sub")
+class Code(lang: String = "") : DecorationElement("code", "lang" to lang) {
+    var lang: String by super.properties
+}

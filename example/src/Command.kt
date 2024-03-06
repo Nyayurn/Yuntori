@@ -1,8 +1,7 @@
 package com.github.nyayurn.qbot
 
-import com.github.nyayurn.yutori.next.Actions
-import com.github.nyayurn.yutori.next.MessageEvent
-import com.github.nyayurn.yutori.next.MessageUtil.decode
+import com.github.nyayurn.yuntori.Actions
+import com.github.nyayurn.yuntori.MessageEvent
 
 interface Command {
     fun test(actions: Actions, event: MessageEvent, msg: String): Boolean
@@ -17,8 +16,11 @@ object AiCommand : Command {
         regex.matchEntire(msg)?.groupValues?.get(1)?.let {
             run(actions, event, it)
         } ?: actions.message.create(event.channel.id) {
-            quote { this["id"] = event.message.id }
-            text { "缺少参数" }
+            message {
+                markdown = true
+                quote { elements += event.message.content }
+                text { "缺少参数" }
+            }
         }
     }
 
@@ -33,9 +35,11 @@ object HelpCommand : Command {
 
     override fun command(actions: Actions, event: MessageEvent, msg: String) {
         actions.message.create(event.channel.id) {
-            quote { this["id"] = event.message.id }
-            text {
-                """
+            message {
+                markdown = true
+                quote { elements += event.message.content }
+                text {
+                    """
                     反馈问题请找Bot姐姐(799712878)
                     命令前缀:
                         /(左斜线, 同MC的指令前缀)
@@ -45,7 +49,8 @@ object HelpCommand : Command {
                         help
                     其他内容:
                         如果发送的消息是符合OpenGraph的网址的链接(如github), 会自动发送预览图
-                """.trimIndent()
+                    """.trimIndent()
+                }
             }
         }
     }
@@ -59,12 +64,15 @@ object EchoCommand : Command {
         val qq = event.platform == "chronocat" && (event.user.id == "799712878" || event.user.id == "3175473426")
         val guild = event.platform == "qqguild" && event.user.id == "6917646451525197539"
         if (qq || guild) {
-            actions.message.create(event.channel.id, msg.decode().substring(5))
+            actions.message.create(event.channel.id, msg.substring(5))
             return
         }
         actions.message.create(event.channel.id) {
-            quote { this["id"] = event.message.id }
-            text { "你不是Bot姐姐或Bot姐姐的男盆友, 别乱用指令!" }
+            message {
+                markdown = true
+                quote { elements += event.message.content }
+                text { "你不是Bot姐姐或Bot姐姐的男盆友, 别乱用指令!" }
+            }
         }
     }
 }

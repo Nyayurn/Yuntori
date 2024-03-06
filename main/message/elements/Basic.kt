@@ -12,9 +12,7 @@ See the Mulan PSL v2 for more details.
 
 @file:Suppress("MemberVisibilityCanBePrivate", "ConvertSecondaryConstructorToPrimary")
 
-package com.github.nyayurn.yutori.next.message.elements
-
-import com.github.nyayurn.yutori.next.MessageUtil.encode
+package com.github.nyayurn.yuntori.message.elements
 
 /**
  * 消息元素
@@ -29,8 +27,8 @@ fun interface MessageElement {
  * @property properties 属性
  * @property children 子元素
  */
-abstract class NodeMessageElement(val nodeName: String) : MessageElement {
-    val properties: MutableMap<String, Any?> = mutableMapOf()
+abstract class NodeMessageElement(val nodeName: String, vararg pairs: Pair<String, Any?>) : MessageElement {
+    val properties: MutableMap<String, Any?> = mutableMapOf(*pairs)
     val children: MutableList<MessageElement> = mutableListOf()
 
     /**
@@ -116,8 +114,8 @@ abstract class NodeMessageElement(val nodeName: String) : MessageElement {
             append(" ")
             append(
                 when (value) {
-                    is String -> "${key}=\"${value.encode()}\""
-                    is Number -> "${key}=${value}"
+                    is String -> "$key=\"$value\""
+                    is Number -> "$key=$value"
                     is Boolean -> if (value) key else ""
                     else -> throw Exception("Invalid type")
                 }
@@ -138,66 +136,13 @@ abstract class NodeMessageElement(val nodeName: String) : MessageElement {
  * @property text 文本
  */
 class Text(var text: String) : MessageElement {
-    override fun toString() = text.encode()
-}
-
-/**
- * 自定义
- * @property content 内容
- */
-class Custom(var content: String) : MessageElement {
-    override fun toString() = content
-}
-
-/**
- * 提及用户
- * @property id 目标用户的 ID
- * @property name 目标用户的名称
- * @property role 目标角色
- * @property type 特殊操作，例如 all 表示 @全体成员，here 表示 @在线成员
- */
-class At : NodeMessageElement {
-    var id: String? by super.properties
-    var name: String? by super.properties
-    var role: String? by super.properties
-    var type: String? by super.properties
-
-    constructor(
-        id: String? = null,
-        name: String? = null,
-        role: String? = null,
-        type: String? = null
-    ) : super("at") {
-        this.id = id
-        this.name = name
-        this.role = role
-        this.type = type
-    }
-}
-
-/**
- * 提及频道
- * @property id 目标频道的 ID
- * @property name 目标频道的名称
- */
-class Sharp : NodeMessageElement {
-    var id: String by super.properties
-    var name: String? by super.properties
-
-    constructor(id: String, name: String? = null) : super("sharp") {
-        this.id = id
-        this.name = name
-    }
+    override fun toString() = text
 }
 
 /**
  * 链接
  * @property href 链接的 URL
  */
-class Href : NodeMessageElement {
+class Href(href: String) : NodeMessageElement("a", "href" to href) {
     var href: String by super.properties
-
-    constructor(href: String) : super("a") {
-        this.href = href
-    }
 }

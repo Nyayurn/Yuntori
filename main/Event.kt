@@ -10,7 +10,7 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details.
  */
 
-package com.github.nyayurn.yutori.next
+package com.github.nyayurn.yuntori
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
@@ -52,77 +52,6 @@ open class Event(
 ) : Signaling.Body {
     override fun toString(): String {
         return "Event(id=$id, type='$type', platform='$platform', selfId='$selfId', timestamp=$timestamp, argv=$argv, button=$button, channel=$channel, guild=$guild, login=$login, member=$member, message=$message, operator=$operator, role=$role, user=$user)"
-    }
-}
-
-/**
- * 群组事件列表, 参考 https://satori.chat/zh-CN/resources/guild.html#%E4%BA%8B%E4%BB%B6
- */
-object GuildEvents {
-    const val ADDED = "guild-added"
-    const val UPDATED = "guild-updated"
-    const val REMOVED = "guild-removed"
-    const val REQUEST = "guild-request"
-}
-
-/**
- * 群组事件实体类
- */
-class GuildEvent(
-    id: Number,
-    type: String,
-    platform: String,
-    @JsonProperty("self_id") selfId: String,
-    timestamp: Number,
-    argv: Interaction.Argv? = null,
-    button: Interaction.Button? = null,
-    channel: Channel? = null,
-    override val guild: Guild,
-    login: Login? = null,
-    member: GuildMember? = null,
-    message: Message? = null,
-    operator: User? = null,
-    role: GuildRole? = null,
-    user: User? = null,
-    raw: String
-) : Event(
-    id,
-    type,
-    platform,
-    selfId,
-    timestamp,
-    argv,
-    button,
-    channel,
-    guild,
-    login,
-    member,
-    message,
-    operator,
-    role,
-    user,
-    raw
-) {
-    companion object {
-        @JvmStatic
-        fun parse(event: Event) = GuildEvent(
-            event.id,
-            event.type,
-            event.platform,
-            event.selfId,
-            event.timestamp,
-            event.argv,
-            event.button,
-            event.channel,
-            event.guild!!,
-            event.login,
-            event.member,
-            event.message,
-            event.operator,
-            event.role,
-            event.user,
-            event.raw
-        )
     }
 }
 
@@ -192,76 +121,6 @@ class GuildMemberEvent(
             event.operator,
             event.role,
             event.user!!,
-            event.raw
-        )
-    }
-}
-
-/**
- * 群组角色事件列表, 参考 https://satori.chat/zh-CN/resources/role.html#%E4%BA%8B%E4%BB%B6
- */
-object GuildRoleEvents {
-    const val CREATED = "guild-role-created"
-    const val UPDATED = "guild-role-updated"
-    const val DELETED = "guild-role-deleted"
-}
-
-/**
- * 群组角色事件实体类
- */
-class GuildRoleEvent(
-    id: Number,
-    type: String,
-    platform: String,
-    @JsonProperty("self_id") selfId: String,
-    timestamp: Number,
-    argv: Interaction.Argv? = null,
-    button: Interaction.Button? = null,
-    channel: Channel? = null,
-    override val guild: Guild,
-    login: Login? = null,
-    member: GuildMember? = null,
-    message: Message? = null,
-    operator: User? = null,
-    override val role: GuildRole,
-    user: User? = null,
-    raw: String
-) : Event(
-    id,
-    type,
-    platform,
-    selfId,
-    timestamp,
-    argv,
-    button,
-    channel,
-    guild,
-    login,
-    member,
-    message,
-    operator,
-    role,
-    user,
-    raw
-) {
-    companion object {
-        @JvmStatic
-        fun parse(event: Event) = GuildRoleEvent(
-            event.id,
-            event.type,
-            event.platform,
-            event.selfId,
-            event.timestamp,
-            event.argv,
-            event.button,
-            event.channel,
-            event.guild!!,
-            event.login,
-            event.member,
-            event.message,
-            event.operator,
-            event.role!!,
-            event.user,
             event.raw
         )
     }
@@ -398,82 +257,10 @@ class InteractionCommandEvent(
 }
 
 /**
- * 登录事件列表, 参考 https://satori.chat/zh-CN/resources/login.html#%E4%BA%8B%E4%BB%B6
- */
-object LoginEvents {
-    const val ADDED = "login-added"
-    const val REMOVED = "login-removed"
-    const val UPDATED = "login-updated"
-}
-
-/**
- * 登录事件实体类
- */
-class LoginEvent(
-    id: Number,
-    type: String,
-    platform: String,
-    @JsonProperty("self_id") selfId: String,
-    timestamp: Number,
-    argv: Interaction.Argv? = null,
-    button: Interaction.Button? = null,
-    channel: Channel? = null,
-    guild: Guild? = null,
-    override val login: Login,
-    member: GuildMember? = null,
-    message: Message? = null,
-    operator: User? = null,
-    role: GuildRole? = null,
-    user: User? = null,
-    raw: String
-) : Event(
-    id,
-    type,
-    platform,
-    selfId,
-    timestamp,
-    argv,
-    button,
-    channel,
-    guild,
-    login,
-    member,
-    message,
-    operator,
-    role,
-    user,
-    raw
-) {
-    companion object {
-        @JvmStatic
-        fun parse(event: Event) = LoginEvent(
-            event.id,
-            event.type,
-            event.platform,
-            event.selfId,
-            event.timestamp,
-            event.argv,
-            event.button,
-            event.channel,
-            event.guild,
-            event.login!!,
-            event.member,
-            event.message,
-            event.operator,
-            event.role,
-            event.user,
-            event.raw
-        )
-    }
-}
-
-/**
  * 消息事件列表, 参考 https://satori.chat/zh-CN/resources/message.html#%E4%BA%8B%E4%BB%B6
  */
 object MessageEvents {
     const val CREATED = "message-created"
-    const val UPDATED = "message-updated"
-    const val DELETED = "message-deleted"
 }
 
 /**
@@ -537,139 +324,9 @@ class MessageEvent(
     }
 }
 
-/**
- * 表态事件列表, 参考 https://satori.chat/zh-CN/resources/reaction.html#%E4%BA%8B%E4%BB%B6
- */
-object ReactionEvents {
-    const val ADDED = "reaction-added"
-    const val REMOVED = "reaction-removed"
-}
-
-/**
- * 表态事件实体类
- */
-class ReactionEvent(
-    id: Number,
-    type: String,
-    platform: String,
-    @JsonProperty("self_id") selfId: String,
-    timestamp: Number,
-    argv: Interaction.Argv? = null,
-    button: Interaction.Button? = null,
-    channel: Channel? = null,
-    guild: Guild? = null,
-    login: Login? = null,
-    member: GuildMember? = null,
-    message: Message? = null,
-    operator: User? = null,
-    role: GuildRole? = null,
-    user: User? = null,
-    raw: String
-) : Event(
-    id,
-    type,
-    platform,
-    selfId,
-    timestamp,
-    argv,
-    button,
-    channel,
-    guild,
-    login,
-    member,
-    message,
-    operator,
-    role,
-    user,
-    raw
-) {
-    companion object {
-        @JvmStatic
-        fun parse(event: Event) = ReactionEvent(
-            event.id,
-            event.type,
-            event.platform,
-            event.selfId,
-            event.timestamp,
-            event.argv,
-            event.button,
-            event.channel,
-            event.guild,
-            event.login,
-            event.member,
-            event.message,
-            event.operator,
-            event.role,
-            event.user,
-            event.raw
-        )
-    }
-}
-
-/**
- * 用户事件列表, 参考 https://satori.chat/zh-CN/resources/user.html#%E4%BA%8B%E4%BB%B6
- */
-object UserEvents {
-    const val FRIEND_REQUEST = "friend-request"
-}
-
-/**
- * 用户事件实体类
- */
-class UserEvent(
-    id: Number,
-    type: String,
-    platform: String,
-    @JsonProperty("self_id") selfId: String,
-    timestamp: Number,
-    argv: Interaction.Argv? = null,
-    button: Interaction.Button? = null,
-    channel: Channel? = null,
-    guild: Guild? = null,
-    login: Login? = null,
-    member: GuildMember? = null,
-    message: Message? = null,
-    operator: User? = null,
-    role: GuildRole? = null,
-    override val user: User,
-    raw: String
-) : Event(
-    id,
-    type,
-    platform,
-    selfId,
-    timestamp,
-    argv,
-    button,
-    channel,
-    guild,
-    login,
-    member,
-    message,
-    operator,
-    role,
-    user,
-    raw
-) {
-    companion object {
-        @JvmStatic
-        fun parse(event: Event) = UserEvent(
-            event.id,
-            event.type,
-            event.platform,
-            event.selfId,
-            event.timestamp,
-            event.argv,
-            event.button,
-            event.channel,
-            event.guild,
-            event.login,
-            event.member,
-            event.message,
-            event.operator,
-            event.role,
-            event.user!!,
-            event.raw
-        )
+object InternalEvents {
+    object BotEvents {
+        const val FOLLOWED = "bot-followed"
+        const val UNFOLLOWED = "bot-unfollowed"
     }
 }

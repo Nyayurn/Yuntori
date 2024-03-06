@@ -1,9 +1,9 @@
 package com.github.nyayurn.qbot
 
 import com.alibaba.fastjson2.parseObject
-import com.github.nyayurn.yutori.next.Actions
-import com.github.nyayurn.yutori.next.MessageEvent
-import com.github.nyayurn.yutori.next.jsonObj
+import com.github.nyayurn.yuntori.Actions
+import com.github.nyayurn.yuntori.MessageEvent
+import com.github.nyayurn.yuntori.jsonObj
 import com.reine.text2image.T2IConstant
 import com.reine.text2image.T2IUtil
 import org.java_websocket.client.WebSocketClient
@@ -96,9 +96,12 @@ object AiUtil {
             if (entity.header.code != 0) {
                 val code = entity.header.code
                 actions.message.create(event.channel.id) {
-                    quote { this["id"] = event.message.id }
-                    text { "code: $code\n" }
-                    text { entity.header.message }
+                    message {
+                        markdown = true
+                        quote { elements += event.message.content }
+                        text { "code: $code\n" }
+                        text { entity.header.message }
+                    }
                 }
                 return
             }
@@ -110,9 +113,13 @@ object AiUtil {
             if (entity.header.status == 2) {
                 val content = answer.toString()
                 actions.message.create(event.channel.id) {
-                    quote { this["id"] = event.message.id }
-                    img {
-                        src = "data:image/jpeg;base64," + T2IUtil(T2IConstant()).drawImageToBase64(content).substring(9)
+                    message {
+                        markdown = true
+                        quote { elements += event.message.content }
+                        img {
+                            src = "data:image/jpeg;base64," + T2IUtil(T2IConstant()).drawImageToBase64(content)
+                                .substring(9)
+                        }
                     }
                 }
             }
